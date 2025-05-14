@@ -7,13 +7,13 @@
     <div v-if="scanning && !finalFrame" class="controls" @click="stopReading()">
       <span class="stop">STOP</span><br />
     </div>
+    <audio class="audio" autoplay muted ref="audio" />
   </div>
 </template>
 
 <script setup>
 import QrScanner from "qr-scanner";
 import { Howler } from 'howler';
-Howler.autoUnlock = false;
 
 const finalFrame = ref(false);
 const videoElem = ref();
@@ -22,19 +22,21 @@ let id = ""
 let lastId = ""
 let throttledCounter = 0;
 
-let sounds = [];
-sounds.push(useSoundComposable('/sounds/1.mp3'));
-sounds.push(useSoundComposable('/sounds/2.mp3'));
-sounds.push(useSoundComposable('/sounds/3.mp3'));
-sounds.push(useSoundComposable('/sounds/4.mp3'));
-sounds.push(useSoundComposable('/sounds/5.mp3'));
-sounds.push(useSoundComposable('/sounds/6.mp3'));
-sounds.push(useSoundComposable('/sounds/7.mp3'));
-sounds.push(useSoundComposable('/sounds/8.mp3'));
-sounds.push(useSoundComposable('/sounds/final.mp3'));
+let soundPaths = [];
+soundPaths.push('/sounds/1.mp3');
+soundPaths.push('/sounds/2.mp3');
+soundPaths.push('/sounds/3.mp3');
+soundPaths.push('/sounds/4.mp3');
+soundPaths.push('/sounds/5.mp3');
+soundPaths.push('/sounds/6.mp3');
+soundPaths.push('/sounds/7.mp3');
+soundPaths.push('/sounds/8.mp3');
+soundPaths.push('/sounds/final.mp3');
+const audio = ref(null);
 
 const stopSounds = () => {
-  sounds.forEach(sound => sound.stop());
+  audio.pause();
+  audio.currentTime = 0;
 }
 
 const playThrottled = useThrottleFn((id) => {
@@ -49,32 +51,49 @@ const playThrottled = useThrottleFn((id) => {
     scanning.value = false;
     finalFrame.value = true;
 
-    sounds[8].play();
+    audio.src = soundPaths[8];
+    audio.play();
   }
 
   else if (id === "1") {
-    sounds[0].play();
+    audio.src = soundPaths[0];
+    audio.play();
   } else if (id === "2") {
-    sounds[1].play();
+    audio.src = soundPaths[1];
+    audio.play();
   } else if (id === "3") {
-    sounds[2].play();
+    audio.src = soundPaths[2];
+    audio.play();
   } else if (id === "4") {
-    sounds[3].play();
+    audio.src = soundPaths[3];
+    audio.play();
   } else if (id === "5") {
-    sounds[4].play();
+    audio.src = soundPaths[4];
+    audio.play();
   } else if (id === "6") {
-    sounds[5].play();
-  } else if (id === "7") { 
-    sounds[6].play();
+    audio.src = soundPaths[5];
+    audio.play();
+  } else if (id === "7") {
+    audio.src = soundPaths[6];
+    audio.play();
   } else if (id === "8") {
-    sounds[7].play();
+    audio.src = soundPaths[7];
+    audio.play();
   }
 
   throttledCounter++
-}, 3000)
+}, 5000)
 
 let qrScanner;
-onMounted(() => {
+
+
+const startReading = () => {
+  console.log("startReading");
+  stopSounds();
+  finalFrame.value = false;
+  throttledCounter = 0;
+  qrScanner.start();
+  scanning.value = true;
   qrScanner = new QrScanner(
     videoElem.value,
     (data) => {
@@ -84,21 +103,12 @@ onMounted(() => {
     },
     { returnDetailedScanResult: true, highlightScanRegion: true }
   );
-});
-
-const startReading = () => {
-  console.log("startReading");
-  sounds.forEach(sound => sound.stop());
-  finalFrame.value = false;
-  throttledCounter = 0;
-  qrScanner.start();
-  scanning.value = true;
 };
 
 const stopReading = () => {
   console.log("stopReading");
   qrScanner.stop();
-  sounds.forEach(sound => sound.stop());
+  stopSounds();
   scanning.value = false;
 };
 </script>
@@ -137,5 +147,9 @@ const stopReading = () => {
 .code {
   font-size: 20px;
   color: yellow;
+}
+
+.audio {
+  display: none;
 }
 </style>

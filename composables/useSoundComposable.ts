@@ -1,21 +1,16 @@
-import { Howler } from "howler";
-
 export function useSoundComposable(soundSrc: string) {
-  const sound = useSound(soundSrc, { interrupt: true });
+  const audio = new Audio(soundSrc);
 
   const play = () => {
-    Howler.stop();
-    sound.stop();
-    sound.play();
+    audio.play();
   };
 
   const stop = () => {
-    sound.stop();
+    audio.pause();
   };
 
   return {
     play,
     stop,
-    isPlaying: sound.isPlaying,
   };
 }
