@@ -2,10 +2,11 @@
   <div class="outer">
     <audio v-for="story in stories" ref="storiesRef" :src="story.path" no-controls />
     <video class="video" ref="videoElem" />
-    <div v-if="finalFrame" class="final">DU BISCH... </div>
+    <div v-if="finalFrame" class="final">{{ response }}</div>
     <div v-if="!scanning && finalFrame" class="controls" @click="startReading()">NEUSTART</div>
     <div v-if="!scanning && !finalFrame" class="controls" @click="startReading()">START</div>
     <div v-if="scanning && !finalFrame" class="controls" @click="stopReading()">
+      <!-- <span>{{ isSpeaking ? "speakin" : "" }}</span><br /> -->
       <span class="stop">STOP</span><br />
     </div>
   </div>
@@ -13,62 +14,21 @@
 
 <script setup>
 import QrScanner from "qr-scanner";
+const { chat } = useChatgpt()
+
 
 const finalFrame = ref(false);
 const videoElem = ref();
 const scanning = ref(false);
+const response = ref("");
+const isSpeaking = ref(false);
+
 let name = ""
 let previousName = ""
 let throttledCounter = 0;
 let gonnaEnd = false;
 let ended = false;
-const stories = [
-  {
-    path: '/sounds/1.mp3',
-    name: 'Spinnentanz',
-    beschreibung: 'Eine Geschichte von 7 Spinnen, die einen Tanz tanzen und singen.'
-  },
-  {
-    path: '/sounds/2.mp3',
-    name: 'Perlenschatz',
-    beschreibung: 'Eine Geschichte von einem Perlenkönig, der seinen Schatz sucht.'
-  },
-  {
-    path: '/sounds/3.mp3',
-    name: 'Kleines Mädchen',
-    beschreibung: 'Eine Geschichte von einem kleinen Mädchen, das in einem Korb sitzt und häkelt.'
-  },
-  {
-    path: '/sounds/4.mp3',
-    name: "Fingerring verloren",
-    beschreibung: 'Eine Geschichte von einem Zwerg, der einen Fingerring verliert und ihn wieder findet.'
-  },
-  {
-    path: '/sounds/5.mp3',
-    name: 'Königin der Nacht',
-    beschreibung: 'Eine Geschichte von einer Königin, die Party feiert und mit ihren Gästen Poker spielt.'
-  },
-  {
-    path: '/sounds/6.mp3',
-    name: 'Zauberwald',
-    beschreibung: 'Eine Geschichte von einem magischen Wald, wo die Bäume Geschichten erzählen und die Blumen singen.'
-  },
-  {
-    path: '/sounds/7.mp3',
-    name: 'Mondscheindrache',
-    beschreibung: 'Eine Geschichte von einem kleinen Drachen, der nachts im Mondschein tanzt und Sterne sammelt.'
-  },
-  {
-    path: '/sounds/8.mp3',
-    name: 'Regenbogenfisch',
-    beschreibung: 'Eine Geschichte von einem bunten Fisch, der in einer Unterwasserstadt Musik macht und andere Fische zum Lachen bringt.'
-  },
-  {
-    path: '/sounds/final.mp3',
-    name: 'Konklusion',
-    beschreibung: 'Eine Geschichte, die alles zusammenfasst und ein Ende macht.'
-  }
-];
+let playedStories = [];
 
 const storiesRef = ref();
 const storiesMedia = ref([]);
@@ -87,32 +47,40 @@ const stopSounds = () => {
       story.media.playing = false
       story.media.currentTime = 0
     });
+    isSpeaking.value = false;
   }
 }
 
 const playThrottled = useThrottleFn((name) => {
   throttledCounter++
   stopSounds();
-  storiesMedia.value.forEach(story => {
-    if (story.name === name) {
-      if (throttledCounter > 1) {
-        gonnaEnd = true
-        console.log("second qr scanned")
-        console.log(story.media.duration)
-        setTimeout(() => {
-          console.log("ended")
-          ended = true
-          finalFrame.value = true
-          stopReading()
-        }, story.media.duration * 1000 - 100)
+  if (!gonnaEnd) {
+    storiesMedia.value.forEach(async (story) => {
+      if (story.name === name) {
+        story.media.playing = true;
+
+        isSpeaking.value = true;
+
+        if (previousName !== name) {
+          playedStories.push(story.name)
+        }
+        if (throttledCounter === 2) {
+          gonnaEnd = true
+          console.log("second qr scanned")
+          console.log(story.media.duration)
+          setTimeout(() => {
+            console.log("ended")
+            ended = true
+            finalFrame.value = true
+            stopReading()
+          }, story.media.duration * 1000 - 100)
+          response.value = await new Promise(resolve => setTimeout(() => resolve(`Erfinde eine Kurzgeschichte über: ${playedStories.join(", ")} in 3 Sätzen.`), 2000))
+          // response.value = await chat("Erzähle mir eine Geschichte über " + name)
+        }
+        previousName = name
       }
-      story.media.playing = true;
-      if (previousName === name) {
-        console.log("same name")
-      }
-      previousName = name
-    }
-  });
+    });
+  }
 }, 3000)
 
 let qrScanner;
@@ -131,6 +99,8 @@ onMounted(() => {
 const startReading = () => {
   console.log("startReading");
   stopSounds();
+  gonnaEnd = false;
+  ended = false;
   finalFrame.value = false;
   throttledCounter = 0;
   qrScanner.start();
@@ -181,6 +151,8 @@ const stopReading = () => {
 
 .final {
   margin-bottom: 20px;
+  text-align: center;
+  max-width: 70dvw;
 }
 
 .code {
