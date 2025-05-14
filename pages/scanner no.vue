@@ -7,13 +7,17 @@
     <div v-if="scanning && !finalFrame" class="controls" @click="stopReading()">
       <span class="stop">STOP</span><br />
     </div>
+    <div v-if="answer !== 'no answer yet'">
+      <div class="answer">{{ answer }}</div>
+    </div>
     <audio class="audio" autoplay muted ref="audio" />
   </div>
 </template>
 
 <script setup>
 import QrScanner from "qr-scanner";
-import { Howler } from 'howler';
+const { chat } = useChatgpt()
+
 
 const finalFrame = ref(false);
 const videoElem = ref();
@@ -21,6 +25,8 @@ const scanning = ref(false);
 let id = ""
 let lastId = ""
 let throttledCounter = 0;
+let answer = ref('no answer yet')
+let qrScanner;
 
 let soundPaths = [];
 soundPaths.push('/sounds/1.mp3');
@@ -35,11 +41,12 @@ soundPaths.push('/sounds/final.mp3');
 const audio = ref(null);
 
 const stopSounds = () => {
-  audio.pause();
-  audio.currentTime = 0;
+  audio.value.pause();
+  audio.value.currentTime = 0;
+  audio.value.volume = 1
 }
 
-const playThrottled = useThrottleFn((id) => {
+const playThrottled = useThrottleFn(async (id) => {
   stopSounds();
   console.log("playThrottled id", id);
   console.log("playThrottled throttledCounter", throttledCounter);
@@ -51,40 +58,41 @@ const playThrottled = useThrottleFn((id) => {
     scanning.value = false;
     finalFrame.value = true;
 
-    audio.src = soundPaths[8];
-    audio.play();
+    audio.value.src = soundPaths[8];
+    audio.value.play();
+  } else if (throttledCounter > 1) {
+    answer.value = "Ich bin ein Roboter"
+    // answer.value = await chat(inputData.value)
   }
 
   else if (id === "1") {
-    audio.src = soundPaths[0];
-    audio.play();
+    audio.value.src = soundPaths[0];
+    audio.value.play();
   } else if (id === "2") {
-    audio.src = soundPaths[1];
-    audio.play();
+    audio.value.src = soundPaths[1];
+    audio.value.play();
   } else if (id === "3") {
-    audio.src = soundPaths[2];
-    audio.play();
+    audio.value.src = soundPaths[2];
+    audio.value.play();
   } else if (id === "4") {
-    audio.src = soundPaths[3];
-    audio.play();
+    audio.value.src = soundPaths[3];
+    audio.value.play();
   } else if (id === "5") {
-    audio.src = soundPaths[4];
-    audio.play();
+    audio.value.src = soundPaths[4];
+    audio.value.play();
   } else if (id === "6") {
-    audio.src = soundPaths[5];
-    audio.play();
+    audio.value.src = soundPaths[5];
+    audio.value.play();
   } else if (id === "7") {
-    audio.src = soundPaths[6];
-    audio.play();
+    audio.value.src = soundPaths[6];
+    audio.value.play();
   } else if (id === "8") {
-    audio.src = soundPaths[7];
-    audio.play();
+    audio.value.src = soundPaths[7];
+    audio.value.play();
   }
 
   throttledCounter++
 }, 5000)
-
-let qrScanner;
 
 
 const startReading = () => {
@@ -92,8 +100,8 @@ const startReading = () => {
   stopSounds();
   finalFrame.value = false;
   throttledCounter = 0;
-  qrScanner.start();
-  scanning.value = true;
+
+
   qrScanner = new QrScanner(
     videoElem.value,
     (data) => {
@@ -103,6 +111,8 @@ const startReading = () => {
     },
     { returnDetailedScanResult: true, highlightScanRegion: true }
   );
+  qrScanner.start();
+  scanning.value = true;
 };
 
 const stopReading = () => {
@@ -122,6 +132,7 @@ const stopReading = () => {
   align-items: center;
   flex-direction: column;
   user-select: none;
+  color: #fff;
 }
 
 .video {

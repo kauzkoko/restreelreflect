@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@vueuse/nuxt', '@vueuse/sound/nuxt'],
+  modules: ['@vueuse/nuxt', '@vueuse/sound/nuxt', "nuxt-chatgpt"],
   sound: {
     sounds: {
       scan: true,
@@ -14,4 +14,7 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
+  chatgpt: {
+    apiKey: process.env.CHATGPT_API_KEY,
+  },
 })
