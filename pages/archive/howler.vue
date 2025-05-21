@@ -10,7 +10,7 @@ import { Howl } from 'howler';
 
 const play = () => {
     const sound = new Howl({
-        src: ['/sounds/1.mp3']
+        src: ['/sounds/1/1a.mp3']
     });
     sound.play();
 }
