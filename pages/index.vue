@@ -1,12 +1,31 @@
 <template>
+
   <div class="console">
-    <div>Current: {{ current }}</div>
-    <div>Targeted QR: {{ targetedQR }}</div>
-    <div>Current sound: {{ currentSound }}</div>
+    <div class="checkboxes">
+      <div>
+        <input type="checkbox" id="refs" v-model="showRefs">
+        <label for="refs">Refs</label>
+      </div>
+      <div>
+        <input type="checkbox" id="controls" v-model="showControls">
+        <label for="controls">Show Controls</label>
+      </div>
+    </div>
+    <div v-if="showRefs">
+      <div>Current: {{ current }}</div>
+      <div>Targeted QR: {{ targetedQR }}</div>
+      <div>Current sound: {{ currentSound }}</div>
+      <div>Previous sound: {{ previousSound }}</div>
+      <div>Addiction score: {{ addictionScore }}</div>
+      <div>Awareness score: {{ awarenessScore }}</div>
+      <div>Super situation counter: {{ superSituationCounter }}</div>
+      <div>Is scanning: {{ isScanning }}</div>
+      <div>Id: {{ id }}</div>
+      <div>Previous id: {{ previousId }}</div>
+    </div>
   </div>
   <div class="container">
     <video class="video" ref="videoRef" />
-    <!-- <div class="customOverlay" v-if="isScanning">test</div> -->
     <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning"
       :class="current === 'targeted' ? 'targeted' : current === 'charging' ? 'charging' : current === 'isPlaying' ? 'isPlaying' : ''"
       viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -42,7 +61,7 @@
     <div v-if="current === 'isPlaying'">Is Playing... <span class="currentSound">{{ currentSound }}</span></div>
     <div v-if="current === 'superSituation'">Super Situation...</div>
     <div v-if="current === 'end'">Restart</div>
-    <div class="controls">
+    <div class="controls" v-if="showControls">
       <div>
         <button @click="goTo('start')">Start</button>
         <button @click="goTo('ready')">Ready</button>
@@ -76,7 +95,7 @@
 
 <script setup>
 import QrScanner from "qr-scanner";
-import { Howl, Howler } from 'howler';
+import { Howler } from 'howler';
 import { animate } from 'animejs';
 
 let qrScanner;
@@ -90,15 +109,19 @@ const { x, y } = useMouse();
 //   offset.value = map(x.value, 0, window.innerWidth, 0, 30);
 //   console.log(offset.value);
 // })
+const showControls = ref(false);
+const showRefs = ref(false);
 const offset = ref(23.5);
 const videoRef = templateRef('videoRef');
 const targetedQR = ref("no QR code targeted");
 const currentSound = ref("no currentSound");
-const lastSound = ref('no lastSound');
+const previousSound = ref('no previousSound');
 const addictionScore = ref(0);
 const awarenessScore = ref(0);
 const superSituationCounter = ref(0);
 const isScanning = ref(false);
+const id = ref(0);
+const previousId = ref(0);
 const {
   steps,
   stepNames,
@@ -162,93 +185,6 @@ watch(current, () => {
   }
 })
 
-const scores = [
-  {
-    path: '/sounds/1/1a.mp3',
-    name: '1a',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/1/1b.mp3',
-    name: '1b',
-    type: 'answer',
-    addictionScore: 2,
-    awarenessScore: 1,
-  },
-  {
-    path: '/sounds/1/1q.mp3',
-    name: '1q',
-    type: 'question',
-    addictionScore: 0,
-    awarenessScore: 0,
-  },
-  {
-    path: '/sounds/2/2a.mp3',
-    name: '2a',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/2/2b.mp3',
-    name: '2b',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/2/2q.mp3',
-    name: '2q',
-    type: 'question',
-    addictionScore: 0,
-    awarenessScore: 0,
-  },
-  {
-    path: '/sounds/3/3a.mp3',
-    name: '3a',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/3/3b.mp3',
-    name: '3b',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/3/3q.mp3',
-    name: '3q',
-    type: 'question',
-    addictionScore: 0,
-    awarenessScore: 0,
-  },
-  {
-    path: '/sounds/4/4a.mp3',
-    name: '4a',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/4/4b.mp3',
-    name: '4b',
-    type: 'answer',
-    addictionScore: 0,
-    awarenessScore: 3,
-  },
-  {
-    path: '/sounds/4/4q.mp3',
-    name: '4q',
-    type: 'question',
-    addictionScore: 0,
-    awarenessScore: 0,
-  }
-]
-
 const sounds = [];
 scores.forEach(score => {
   const sound = useSound(score.path, {
@@ -263,8 +199,20 @@ scores.forEach(score => {
 });
 
 const playByName = (name) => {
-  lastSound.value = currentSound.name;
+  previousSound.value = currentSound.value;
   const { sound, name: soundName } = sounds.find(sound => sound.name === name);
+  currentSound.value = soundName;
+  if (sound.isPlaying.value) {
+    currentSound.value = 'no currentSound';
+    Howler.stop();
+    return;
+  }
+  Howler.stop();
+  sound.play();
+}
+
+const playById = (id) => {
+  const { sound, name: soundName } = sounds.find(sound => sound.id === id);
   currentSound.value = soundName;
   if (sound.isPlaying.value) {
     currentSound.value = 'no currentSound';
@@ -291,13 +239,28 @@ const stopScanning = () => {
   qrScanner.stop();
 }
 
+let newIdTimestamp = 0;
+let sameIdCounter = ref(0);
 onMounted(() => {
   qrScanner = new QrScanner(
     videoRef.value,
     (data) => {
-      let id = data.data.split('?id=')[1];
-      console.log(id);
+      previousId.value = id.value;
+      id.value = data.data.split('?id=')[1];
+      console.log("just scanned id", id.value);
+      if (previousId.value === id.value) {
+        sameIdCounter.value++;
+      } else {
+        sameIdCounter.value = 0;
+        newIdTimestamp = Date.now();
+      }
 
+      if (previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000) {
+        console.log("same id play", sameIdCounter.value);
+        playByName('1a');
+        sameIdCounter.value = 0;
+        newIdTimestamp = 0
+      }
     },
     { returnDetailedScanResult: true }
   );
@@ -327,8 +290,8 @@ onUnmounted(() => {
     position: fixed;
     top: 50dvh;
     left: 50dvw;
-    width: 90dvw;
-    height: 90dvw;
+    width: 100dvw;
+    height: 100dwh;
     transform: translate(-50%, -50%);
     background: transparent;
     pointer-events: none;
@@ -368,7 +331,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     padding: 10px 10px;
     border-radius: 5px;
     cursor: pointer;

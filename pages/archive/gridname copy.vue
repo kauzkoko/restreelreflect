@@ -7,10 +7,14 @@
 <script setup>
 const qrArray = ref([]);
 
-scores.forEach((score, i) => {
-  console.log(score.name, score.id);
+stories.forEach((story, i) => {
+  let urlName = story.name.replace(/\s+/g, '_')
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue');
+  console.log(urlName);
   qrArray.value.push(
-    useQR("https://rerere.cc?id=" + score.id, {
+    useQR("https://daerustruggles.netlify.app/scanner?name=" + urlName, {
       margin: 5,
       errorCorrectionLevel: "H",
     })

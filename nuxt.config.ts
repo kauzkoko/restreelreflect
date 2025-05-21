@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@vueuse/nuxt',
     '@vueuse/sound/nuxt', 
-    // "nuxt-chatgpt"
   ],
   sound: {
     sounds: {
@@ -17,7 +16,9 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
-  // chatgpt: {
-  //   apiKey: process.env.CHATGPT_API_KEY,
-  // },
+  app: {
+    head: {
+      title: 'Rest, Reel, Reflect'
+    }
+  },
 })
