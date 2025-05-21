@@ -8,10 +8,14 @@
 <script setup>
 import { Howl } from 'howler';
 
-const play = () => {
-    const sound = new Howl({
-        src: ['/sounds/1/1a.mp3']
+const sound = new Howl({
+        src: ['/sounds/1a.mp3'],
+        html5: true,
+        volume: 1
     });
+
+const play = () => {
+    console.log('play');
     sound.play();
 }
 </script>
