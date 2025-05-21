@@ -123,23 +123,8 @@
   const id = ref(0);
   const previousId = ref(0);
   const {
-    steps,
-    stepNames,
-    index,
     current,
-    next,
-    previous,
-    isFirst,
-    isLast,
     goTo,
-    goToNext,
-    goToPrevious,
-    goBackTo,
-    isNext,
-    isPrevious,
-    isCurrent,
-    isBefore,
-    isAfter,
   } = useStepper([
     'start',
     'ready',

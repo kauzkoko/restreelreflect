@@ -246,7 +246,7 @@ onMounted(() => {
     videoRef.value,
     (data) => {
       previousId.value = id.value;
-      id.value = data.data.split('?id=')[1];
+      id.value = data.data.split('/')[1];
       console.log("just scanned id", id.value);
       if (previousId.value === id.value) {
         sameIdCounter.value++;

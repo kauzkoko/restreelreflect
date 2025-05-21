@@ -1,6 +1,11 @@
 <template>
   <div class="grid">
-    <img :src="qr.value" v-for="qr in qrArray" class="qr" />
+    <div v-for="qr in qrArray" class="qr" :style="{ backgroundColor: qr.letter === 'a' ? 'red' : qr.letter === 'b' ? 'blue' : 'white' }">
+      <div>{{ qr.type }}</div>
+      <div style="font-size: 50px;">{{ qr.letter }}</div>
+      <div>{{ qr.id }}</div>
+      <img :src="qr.qr" class="qr" />
+    </div>
   </div>
 </template>
 
@@ -9,11 +14,16 @@ const qrArray = ref([]);
 
 scores.forEach((score, i) => {
   console.log(score.name, score.id);
-  qrArray.value.push(
-    useQR("https://rerere.cc?id=" + score.id, {
+  qrArray.value.push({
+    type: score.type,
+    letter: score.letter,
+    id: score.id,
+    qr: useQR("rerere.cc/" + score.id, {
       margin: 5,
       errorCorrectionLevel: "H",
     })
+  }
+
   );
 });
 </script>
@@ -24,6 +34,8 @@ scores.forEach((score, i) => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 50px;
+  width: 100dvw;
+  height: 100dvh;
 }
 
 .qr {
