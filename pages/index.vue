@@ -123,23 +123,8 @@ const isScanning = ref(false);
 const id = ref(0);
 const previousId = ref(0);
 const {
-  steps,
-  stepNames,
-  index,
   current,
-  next,
-  previous,
-  isFirst,
-  isLast,
   goTo,
-  goToNext,
-  goToPrevious,
-  goBackTo,
-  isNext,
-  isPrevious,
-  isCurrent,
-  isBefore,
-  isAfter,
 } = useStepper([
   'start',
   'ready',
@@ -154,7 +139,6 @@ const {
 
 let animation;
 const startAnimation = () => {
-  console.log('startAnimation');
   const square = document.querySelector('#square');
   animation = animate(square, { strokeDashoffset: 1000, duration: 25000, loop: true, ease: 'easeInOutSine', autoplay: true });
 }
@@ -212,7 +196,7 @@ const playByName = (name) => {
 }
 
 const playById = (id) => {
-  const { sound, name: soundName } = sounds.find(sound => sound.id === id);
+  const { sound, name: soundName } = sounds.find(sound => sound.id == id);
   currentSound.value = soundName;
   if (sound.isPlaying.value) {
     currentSound.value = 'no currentSound';
@@ -223,13 +207,22 @@ const playById = (id) => {
   sound.play();
 }
 
+const getIsPlayingById = (id) => {
+  const { sound } = sounds.find(sound => sound.id == id);
+  return sound.isPlaying.value;
+}
+
+const getNameById = (id) => {
+  const { name: soundName } = sounds.find(sound => sound.id == id);
+  return soundName;
+}
+
 const stopPlaying = () => {
   Howler.stop();
 }
 
 const start = () => {
   goTo('ready');
-  console.log('start');
   qrScanner.start();
   isScanning.value = true;
 }
@@ -247,7 +240,6 @@ onMounted(() => {
     (data) => {
       previousId.value = id.value;
       id.value = data.data.split('/')[1];
-      console.log("just scanned id", id.value);
       if (previousId.value === id.value) {
         sameIdCounter.value++;
       } else {
@@ -255,16 +247,16 @@ onMounted(() => {
         newIdTimestamp = Date.now();
       }
 
-      if (previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000) {
-        console.log("same id play", sameIdCounter.value);
-        playByName('1a');
+      const currentIdIsPlaying = getIsPlayingById(id.value);
+      if (!currentIdIsPlaying && previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000) {
+        playById(id.value);
         sameIdCounter.value = 0;
         newIdTimestamp = 0
       }
     },
     { returnDetailedScanResult: true }
   );
-  start();
+  // start();
 });
 
 onUnmounted(() => {
