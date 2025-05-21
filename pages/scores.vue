@@ -5,21 +5,34 @@
     <div>Current sound: {{ currentSound }}</div>
   </div>
   <div class="container">
+    <video class="video" ref="videoRef" />
+    <!-- <div class="customOverlay" v-if="isScanning">test</div> -->
+    <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning"
+      :class="current === 'targeted' ? 'targeted' : current === 'charging' ? 'charging' : current === 'isPlaying' ? 'isPlaying' : ''"
+      viewBox="0 0 100 100" preserveAspectRatio="none">
+      <rect id="square" x="10" y="10" width="80" height="80" rx="2" ry="2" fill="none" stroke-width="4"
+        stroke-dasharray="40, 40" :stroke-dashoffset="offset" />
+    </svg>
     <div class="state" v-if="current === 'start'">
       <div>Welcome to</div>
       <div class="title">Rest, Reel, Reflect</div>
       <div>
         <ol>
-          <li>Please enable camera access to continue.</li>
           <li>Put the audio cable on the bed into your phone.</li>
+          <li>Click start and enable camera access when asked.</li>
         </ol>
       </div>
-    </div>
-    <div v-if="current === 'ready'">
       <div>
-        Scan QR codes and listen
+        <div class="startButton" @click="start()">
+          <div>Start</div>
+        </div>
       </div>
-      <div>Answer by scanning [A] or [B] QR codes</div>
+    </div>
+    <div class="state" v-if="current === 'ready'">
+      <div class="readyText">
+        Scan QR codes and listen.
+      </div>
+      <div>Answer by scanning [A] or [B] QR codes.</div>
     </div>
     <div v-if="current === 'readyForAnswer'">
       Answer by scanning [A] or [B] QR codes
@@ -31,44 +44,61 @@
     <div v-if="current === 'end'">Restart</div>
     <div class="controls">
       <div>
-      <button @click="goTo('ready')">Ready</button>
-      <button @click="goTo('readyForAnswer')">Ready for Answer</button>
-      <button @click="goTo('targeted')">Targeted</button>
-      <button @click="goTo('charging')">Charging</button>
-      <button @click="goTo('isPlaying')">Is Playing</button>
-      <button @click="goTo('superSituation')">Super Situation</button>
-      <button @click="goTo('end')">End</button>
-    </div>
-    <div>
-      <button @click="playByName('1a')">1a</button>
-      <button @click="playByName('1b')">1b</button>
-      <button @click="playByName('1q')">1q</button>
-      <button @click="playByName('2a')">2a</button>
-      <button @click="playByName('2b')">2b</button>
-      <button @click="playByName('2q')">2q</button>
-      <button @click="playByName('3a')">3a</button>
-      <button @click="playByName('3b')">3b</button>
-      <button @click="playByName('3q')">3q</button>
-      <button @click="playByName('4a')">4a</button>
-      <button @click="playByName('4b')">4b</button>
-      <button @click="playByName('4q')">4q</button>
-      <button @click="stopPlaying">Stop</button>
-    </div>
+        <button @click="goTo('start')">Start</button>
+        <button @click="goTo('ready')">Ready</button>
+        <button @click="goTo('readyForAnswer')">Ready for Answer</button>
+        <button @click="goTo('targeted')">Targeted</button>
+        <button @click="goTo('charging')">Charging</button>
+        <button @click="goTo('isPlaying')">Is Playing</button>
+        <button @click="goTo('superSituation')">Super Situation</button>
+        <button @click="goTo('end')">End</button>
+      </div>
+      <div>
+        <button @click="playByName('1a')">1a</button>
+        <button @click="playByName('1b')">1b</button>
+        <button @click="playByName('1q')">1q</button>
+        <button @click="playByName('2a')">2a</button>
+        <button @click="playByName('2b')">2b</button>
+        <button @click="playByName('2q')">2q</button>
+        <button @click="playByName('3a')">3a</button>
+        <button @click="playByName('3b')">3b</button>
+        <button @click="playByName('3q')">3q</button>
+        <button @click="playByName('4a')">4a</button>
+        <button @click="playByName('4b')">4b</button>
+        <button @click="playByName('4q')">4q</button>
+        <button @click="stopPlaying">Stop playing</button>
+        <button @click="qrScanner.stop()">Stop scanning</button>
+      </div>
     </div>
 
   </div>
 </template>
 
 <script setup>
+import QrScanner from "qr-scanner";
 import { Howl, Howler } from 'howler';
+import { animate } from 'animejs';
 
+let qrScanner;
+
+const map = (value, inMin, inMax, outMin, outMax) => {
+  return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+}
+
+const { x, y } = useMouse();
+// watch(x, () => {
+//   offset.value = map(x.value, 0, window.innerWidth, 0, 30);
+//   console.log(offset.value);
+// })
+const offset = ref(23.5);
+const videoRef = templateRef('videoRef');
 const targetedQR = ref("no QR code targeted");
 const currentSound = ref("no currentSound");
 const lastSound = ref('no lastSound');
 const addictionScore = ref(0);
 const awarenessScore = ref(0);
 const superSituationCounter = ref(0);
-
+const isScanning = ref(false);
 const {
   steps,
   stepNames,
@@ -97,6 +127,36 @@ const {
   'superSituation',
   'end'
 ])
+
+
+let animation;
+const startAnimation = () => {
+  console.log('startAnimation');
+  const square = document.querySelector('#square');
+  animation = animate(square, { strokeDashoffset: 1000, duration: 25000, loop: true, ease: 'linear', autoplay: true });
+}
+
+const stopAnimation = () => {
+  console.log('stopAnimation');
+  animation.revert();
+}
+
+
+watch(current, () => {
+  console.log('current', current.value);
+  if (current.value === 'isPlaying') {
+    startAnimation();
+  } else {
+    if (animation) stopAnimation();
+    offset.value = 23.5;
+  }
+
+  if (current.value === 'start') {
+    if (animation) stopAnimation();
+    stopScanning();
+    offset.value = 23.5;
+  }
+})
 
 const scores = [
   {
@@ -214,6 +274,36 @@ const playByName = (name) => {
 const stopPlaying = () => {
   Howler.stop();
 }
+
+const start = () => {
+  goTo('ready');
+  console.log('start');
+  qrScanner.start();
+  isScanning.value = true;
+}
+
+const stopScanning = () => {
+  isScanning.value = false;
+  qrScanner.stop();
+}
+
+onMounted(() => {
+  qrScanner = new QrScanner(
+    videoRef.value,
+    (data) => {
+      let id = data.data.split('?id=')[1];
+      console.log(id);
+
+    },
+    { returnDetailedScanResult: true }
+  );
+  start();
+});
+
+onUnmounted(() => {
+  stopScanning();
+  qrScanner.destroy();
+})
 </script>
 
 <style scoped>
@@ -227,6 +317,62 @@ const stopPlaying = () => {
   justify-content: center;
   width: 100dvw;
   height: 100dvh;
+  overflow: hidden;
+
+  .customOverlay {
+    position: fixed;
+    top: 50dvh;
+    left: 50dvw;
+    width: 90dvw;
+    height: 90dvw;
+    transform: translate(-50%, -50%);
+    background: transparent;
+    pointer-events: none;
+    stroke: #647E99;
+    opacity: 0.8;
+    transition: stroke 0.5s linear;
+  }
+
+  .targeted {
+    stroke: #5D7185;
+  }
+
+  .charging {
+    stroke: #36699C;
+  }
+
+  .active {
+    stroke: #3481CF;
+  }
+
+  .isPlaying {
+    stroke: #3481CF;
+  }
+
+  .video {
+    position: fixed;
+    width: 100dvw;
+    height: 100dvh;
+    z-index: -1;
+    opacity: 0.5;
+    object-fit: cover;
+  }
+
+  .startButton {
+    background-color: white;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    padding: 10px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+
+    div {
+      padding-top: 4px;
+    }
+  }
 
   .state {
     display: flex;
@@ -234,6 +380,15 @@ const stopPlaying = () => {
     align-items: center;
     justify-content: center;
     max-width: 85%;
+    text-align: center;
+
+    li {
+      text-align: left;
+    }
+
+    .readyText {
+      margin-bottom: 20px;
+    }
   }
 
   .title {
@@ -255,6 +410,8 @@ const stopPlaying = () => {
   font-weight: bold;
 }
 
+
+
 .controls {
   position: absolute;
   bottom: 0;
@@ -270,3 +427,16 @@ const stopPlaying = () => {
   }
 }
 </style>
+
+<!-- <style>
+.scan-region-highlight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .scan-region-highlight-svg {
+    stroke: blue !important;
+    padding: 10px;
+  }
+}
+</style> -->
