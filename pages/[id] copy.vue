@@ -16,17 +16,15 @@
       <div>Targeted QR: {{ targetedQR }}</div>
       <div>Current sound: {{ currentSound }}</div>
       <div>Previous sound: {{ previousSound }}</div>
-      <div>Total addiction score: {{ totalAddictionScore }}</div>
-      <div>Total awareness score: {{ totalAwarenessScore }}</div>
+      <div>Addiction score: {{ addictionScore }}</div>
+      <div>Awareness score: {{ awarenessScore }}</div>
       <div>Super situation counter: {{ superSituationCounter }}</div>
       <div>Is scanning: {{ isScanning }}</div>
       <div>Id: {{ id }}</div>
       <div>Previous id: {{ previousId }}</div>
-      <div>Same id counter: {{ sameIdCounter }}</div>
-      <div>Should trigger: {{ shouldTrigger }}</div>
-      <div>Order: {{ order }}</div>
-      <div>Unique values: {{ uniqueValues }}</div>
-      <div>Previous question: {{ previousQuestionName }}</div>
+      <div>Order all played by type: {{ orderAllPlayedByType }}</div>
+      <div>Order questions played by name: {{ orderQuestionsPlayedByName }}</div>
+      <div>Order questions played by number: {{ orderQuestionsPlayedByNumber }}</div>
     </div>
   </div>
   <div class="container">
@@ -78,6 +76,19 @@
         <button @click="goTo('end')">End</button>
       </div>
       <div>
+        <button @click="playByName('1a')">1a</button>
+        <button @click="playByName('1b')">1b</button>
+        <button @click="playByName('1q')">1q</button>
+        <button @click="playByName('2a')">2a</button>
+        <button @click="playByName('2b')">2b</button>
+        <button @click="playByName('2q')">2q</button>
+        <button @click="playByName('3a')">3a</button>
+        <button @click="playByName('3b')">3b</button>
+        <button @click="playByName('3q')">3q</button>
+        <button @click="playByName('4a')">4a</button>
+        <button @click="playByName('4b')">4b</button>
+        <button @click="playByName('4q')">4q</button>
+        <button @click="stopPlaying">Stop playing</button>
         <button @click="qrScanner.stop()">Stop scanning</button>
       </div>
     </div>
@@ -91,9 +102,12 @@ import { Howler } from 'howler';
 import { animate } from 'animejs';
 
 let qrScanner;
-let newIdTimestamp = 0;
 
-
+// const { x, y } = useMouse();
+// watch(x, () => {
+//   offset.value = map(x.value, 0, window.innerWidth, 0, 30);
+//   console.log(offset.value);
+// })
 const showControls = ref(false);
 const showRefs = ref(true);
 const offset = ref(23.5);
@@ -101,19 +115,16 @@ const videoRef = templateRef('videoRef');
 const targetedQR = ref("no QR code targeted");
 const currentSound = ref("no currentSound");
 const previousSound = ref('no previousSound');
-const totalAddictionScore = ref(0);
-const totalAwarenessScore = ref(0);
+const addictionScore = ref(0);
+const awarenessScore = ref(0);
 const superSituationCounter = ref(0);
 const isScanning = ref(false);
 const id = ref(0);
 const previousId = ref(0)
 const sameIdCounter = ref(0)
-const order = ref([])
-const uniqueValues = ref(0)
-const previousQuestionName = ref(null)
-const shouldTrigger = ref(false)
-let previousQuestion = ref(null)
-
+const orderAllPlayedByType = ref([])
+const orderQuestionsPlayedByName = ref([])
+const orderQuestionsPlayedByNumber = ref([])
 const {
   current,
   goTo,
@@ -143,6 +154,7 @@ const stopAnimation = () => {
   });
 }
 
+
 watch(current, () => {
   console.log('current', current.value);
   if (current.value === 'isPlaying') {
@@ -159,11 +171,6 @@ watch(current, () => {
   }
 })
 
-watch(order, () => {
-  console.log('order', order.value);
-  uniqueValues.value = new Set(order.value).size;
-}, { deep: true })
-
 const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = useSound('/sounds/confirmation.mp3', {
   volume: 1,
   interrupt: true,
@@ -173,8 +180,17 @@ const sounds = [];
 scores.forEach(score => {
   const sound = useSound('/sounds/' + score.number + '/' + score.number + 'all.mp3', {
     volume: 1,
-    interrupt: true,
+    interrupt: false,
     html5: true,
+    // onend: () => {
+    //   console.log('onend', score.name);
+    //   if (score.type === 'question') {
+    //     playById(score.id - 2);
+    //   }
+    //   if (score.letter === 'a') {
+    //     playById(score.id + 1);
+    //   }
+    // }
   })
   sounds.push({
     ...score,
@@ -212,6 +228,32 @@ const playById = (id) => {
   sound.play();
 }
 
+const checkAndPlayConfirmationSound = () => {
+  if (orderAllPlayedByType.value[orderAllPlayedByType.value.length - 1] === 'question') {
+    console.log('should play confirmation sound');
+    playConfirmationSound();
+  }
+}
+
+const getIsPlayingById = (id) => {
+  const { sound } = sounds.find(sound => sound.id == id);
+  return sound.isPlaying.value;
+}
+
+const getNameById = (id) => {
+  const { name: soundName } = sounds.find(sound => sound.id == id);
+  return soundName;
+}
+
+const getNumberById = (id) => {
+  const { number } = sounds.find(sound => sound.id == id);
+  return number;
+}
+
+const stopPlaying = () => {
+  Howler.stop();
+}
+
 const start = () => {
   goTo('ready');
   qrScanner.start();
@@ -223,32 +265,56 @@ const stopScanning = () => {
   qrScanner.stop();
 }
 
-const scanCallback = (data) => {
-  previousId.value = id.value;
-  id.value = data.data.split('/')[1];
-  targetedQR.value = data.data;
-  if (previousId.value === id.value) {
-    sameIdCounter.value++;
-  } else {
-    sameIdCounter.value = 0;
-    newIdTimestamp = Date.now();
-  }
-
-  shouldTrigger.value = previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000
-
-  if (shouldTrigger.value) {
-    console.log(id.value)
-    newIdTimestamp = 0
-    sameIdCounter.value = 0;
-  }
-}
-
+let newIdTimestamp = 0;
 onMounted(() => {
   qrScanner = new QrScanner(
     videoRef.value,
-    scanCallback,
+    (data) => {
+      previousId.value = id.value;
+      id.value = data.data.split('/')[1];
+      if (previousId.value === id.value) {
+        sameIdCounter.value++;
+      } else {
+        sameIdCounter.value = 0;
+        newIdTimestamp = Date.now();
+      }
+
+      console.log('letter', getSoundById(id.value).letter);
+      const isQuestion = getSoundById(id.value).type === 'question';
+      const isAnswerA = getSoundById(id.value).letter === 'a';
+      const isAnswerB = getSoundById(id.value).letter === 'b';
+      const currentIdIsPlaying = getIsPlayingById(id.value);
+      if (isQuestion && !currentIdIsPlaying && previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000) {
+        playById(id.value);
+        orderQuestionsPlayedByName.value.push(getNameById(id.value));
+        orderQuestionsPlayedByNumber.value.push(getNumberById(id.value));
+        orderAllPlayedByType.value.push('question');
+        const uniqueValues = new Set(orderQuestionsPlayedByNumber.value);
+        sameIdCounter.value = 0;
+        newIdTimestamp = 0
+      } else {
+        console.log('confirmationSoundPlaying', isConfirmationSoundPlaying.value);
+        const lastQuestion = orderQuestionsPlayedByNumber.value[orderQuestionsPlayedByNumber.value.length - 1]
+        console.log('lastQuestion', lastQuestion);
+        if (isAnswerA && !isConfirmationSoundPlaying.value && previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000) {
+          console.log('isAnswerA for question', lastQuestion);
+          orderAllPlayedByType.value.push('answer');
+          checkAndPlayConfirmationSound();
+          sameIdCounter.value = 0;
+          newIdTimestamp = 0
+        }
+        if (isAnswerB && !isConfirmationSoundPlaying.value && previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000) {
+          console.log('isAnswerB for question', lastQuestion);
+          checkAndPlayConfirmationSound();
+          orderAllPlayedByType.value.push('answer');
+          sameIdCounter.value = 0;
+          newIdTimestamp = 0
+        }
+      }
+    },
     { returnDetailedScanResult: true }
   );
+  // start();
 });
 
 onUnmounted(() => {
@@ -378,3 +444,16 @@ onUnmounted(() => {
   }
 }
 </style>
+
+<!-- <style>
+.scan-region-highlight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .scan-region-highlight-svg {
+    stroke: blue !important;
+    padding: 10px;
+  }
+}
+</style> -->

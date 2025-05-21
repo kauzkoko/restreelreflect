@@ -169,6 +169,11 @@ watch(current, () => {
   }
 })
 
+const confirmationSound = useSound('/sounds/confirmation.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true
+})
 const sounds = [];
 scores.forEach(score => {
   const sound = useSound(score.path, {

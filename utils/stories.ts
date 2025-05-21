@@ -50,6 +50,7 @@ export const scores = [
   {
     path: '/sounds/1/1a.mp3',
     name: '1a',
+    number: 1,
     type: 'answer',
     letter: 'a',
     addictionScore: 0,
@@ -59,24 +60,30 @@ export const scores = [
   {
     path: '/sounds/1/1b.mp3',
     name: '1b',
+    number: 1,
     type: 'answer',
     letter: 'b',
     addictionScore: 2,
     awarenessScore: 1,
     id: 2,
+
   },
   {
     path: '/sounds/1/1q.mp3',
     name: '1q',
+    number: 1,
     type: 'question',
     letter: 'q',
-    addictionScore: 0,
-    awarenessScore: 0,
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
     id: 3,
   },
   {
     path: '/sounds/2/2a.mp3',
     name: '2a',
+    number: 2,
     type: 'answer',
     letter: 'a',
     addictionScore: 0,
@@ -86,6 +93,7 @@ export const scores = [
   {
     path: '/sounds/2/2b.mp3',
     name: '2b',
+    number: 2,
     type: 'answer',
     letter: 'b',
     addictionScore: 0,
@@ -95,15 +103,19 @@ export const scores = [
   {
     path: '/sounds/2/2q.mp3',
     name: '2q',
+    number: 2,
     type: 'question',
     letter: 'q',
-    addictionScore: 0,
-    awarenessScore: 0,
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
     id: 6,
   },
   {
     path: '/sounds/3/3a.mp3',
     name: '3a',
+    number: 3,
     type: 'answer',
     letter: 'a',
     addictionScore: 0,
@@ -113,6 +125,7 @@ export const scores = [
   {
     path: '/sounds/3/3b.mp3',
     name: '3b',
+    number: 3,
     type: 'answer',
     letter: 'b',
     addictionScore: 0,
@@ -122,24 +135,28 @@ export const scores = [
   {
     path: '/sounds/3/3q.mp3',
     name: '3q',
+    number: 3,
     type: 'question',
     letter: 'q',
-    addictionScore: 0,
-    awarenessScore: 0,
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
     id: 9,
   },
   {
     path: '/sounds/4/4a.mp3',
     name: '4a',
+    number: 4,
     type: 'answer',
     letter: 'a',
-    addictionScore: 0,
-    awarenessScore: 3,
+
     id: 10,
   },
   {
     path: '/sounds/4/4b.mp3',
     name: '4b',
+    number: 4,
     type: 'answer',
     letter: 'b',
     addictionScore: 0,
@@ -149,10 +166,64 @@ export const scores = [
   {
     path: '/sounds/4/4q.mp3',
     name: '4q',
+    number: 4,
     type: 'question',
     letter: 'q',
-    addictionScore: 0,
-    awarenessScore: 0,
+    addictionScoreA: 0,
+    awarenessScoreA: 3,
+    addictionScoreB: 0,
+    awarenessScoreB: 3,
     id: 12,
+  }
+]
+
+export const questions = [
+  {
+    path: '/sounds/q1.mp3',
+    name: '1q',
+    number: 1,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 1
+  },
+  {
+    path: '/sounds/q2.mp3',
+    name: '2q',
+    number: 2,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 2
+  },
+  {
+    path: '/sounds/q3.mp3',
+    name: '3q',
+    number: 3,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 3
+  },
+  {
+    path: '/sounds/q4.mp3',
+    name: '4q',
+    number: 4,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 0,
+    awarenessScoreA: 3,
+    addictionScoreB: 0,
+    awarenessScoreB: 3,
+    id: 4
   }
 ]

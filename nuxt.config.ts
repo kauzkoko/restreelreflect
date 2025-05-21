@@ -21,4 +21,7 @@ export default defineNuxtConfig({
       title: 'Rest, Reel, Reflect'
     }
   },
+  devServer: {
+    port: 3333,
+  }
 })
