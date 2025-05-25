@@ -117,6 +117,9 @@ watch(current, () => {
     } else {
       playCowSound();
     }
+  }
+
+  if (current.value === 'start') {
     superSituationCounter.value = 0
     totalAddictionScore.value = 0;
     totalAwarenessScore.value = 0;
