@@ -77,7 +77,8 @@ const uniqueValuesReached = ref(false);
 const isSuperSituation = ref(false);
 const previousAnswerToQuestionName = ref(null);
 
-let superSituationThreshold = 3;
+
+let superSituationThreshold = 0;
 const lastPlayedTimes = new Map();
 
 
