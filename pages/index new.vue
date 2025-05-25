@@ -1,8 +1,16 @@
 <template>
   <div class="container">
-    <video class="video" ref="videoRef" />
-    <div class="videoOverlay"></div>
-    <div class="blendOverlay"></div>
+    <div class="video-container">
+      <div class="video-container-inner">
+        <video class="video" ref="videoRef" />
+        <div v-if="current === 'ready'">
+          <div class="videoOverlay"></div>
+          <div class="blendOverlay">
+            <div class="blendOverlay-inner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="overlay">
       <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning"
         :class="isSuperSituation ? 'superSituation' : isPlaying ? 'isPlaying' : ''" viewBox="0 0 100 100"
@@ -84,7 +92,6 @@ const startAnimation = () => {
 }
 
 const stopAnimation = () => {
-  console.log('stopAnimation');
   animate(square, {
     strokeDashoffset: 23.5, duration: 500, loop: false, ease: 'linear', autoplay: true, onComplete: () => {
       animation.revert();
@@ -93,7 +100,6 @@ const stopAnimation = () => {
 }
 
 watch(isPlaying, () => {
-  console.log('isPlaying', isPlaying.value);
   if (isPlaying.value) {
     startAnimation();
   } else {
@@ -163,7 +169,6 @@ const { play: playCowSound } = useSound('/sounds/cow.mp3', {
 
 const sounds = [];
 questions.forEach(question => {
-  console.log('question path', question.path);
   const sound = useSound(question.path, {
     volume: 1,
     interrupt: false,
@@ -182,7 +187,6 @@ questions.forEach(question => {
     ...question,
     sound: sound
   })
-  console.log('sounds', sounds);
 });
 
 const setAnswerToQuestion = (questionId, answer, answerId) => {
@@ -206,7 +210,6 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
   previousAnswerToQuestionName.value = question.name;
 
   if (uniqueValuesReached.value) {
-    console.log('uniqueValuesReached and answers set');
     Howler.stop();
     isSuperSituation.value = true;
     setTimeout(() => {
@@ -224,7 +227,6 @@ const getSoundById = (id) => {
 }
 
 const playById = (id) => {
-  console.log('playing question', id);
   const { sound, name: soundName, type } = getSoundById(id);
   Howler.stop();
   order.value.push(soundName);
@@ -285,7 +287,6 @@ const scanCallback = (data) => {
     if (isQuestion) {
       const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
       const now = Date.now();
-      console.log('now in isQuestion', now);
       if (now - lastPlayedTimestamp > 3000) {
         playById(id.value);
         lastPlayedTimes.set(id.value, now);
@@ -321,75 +322,85 @@ onUnmounted(() => {
   height: 100dvh;
   overflow: hidden;
 
+  .video-container {
+    position: fixed;
+    width: 100dvw;
+    height: 100dvh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+
+    .video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0.5;
+      object-fit: cover;
+      width: 100dvw;
+      height: 100dvh;
+      pointer-events: none;
+    }
+
+    .videoOverlay {
+      background-color: black;
+      opacity: 0.3;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .blendOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100dvw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .blendOverlay-inner {
+        width: 93dvw;
+        height: 93dvw;
+        aspect-ratio: 1/1;
+        background-color: white;
+        mix-blend-mode: overlay;
+        opacity: 0.5;
+
+        @media screen and (orientation: landscape) {
+          width: 93dvh;
+          height: 93dvh;
+        }
+      }
+    }
+  }
+
   .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    z-index: 99999999999999999999;
     display: flex;
     align-items: center;
     justify-content: center;
     pointer-events: none;
-  }
 
-  .customOverlay {
-    background: transparent;
-    pointer-events: none;
-    stroke: #647E99;
-    opacity: 0.8;
-    transition: stroke 0.5s linear;
-    z-index: 99999999999999999999;
+    .customOverlay {
+      background: transparent;
+      pointer-events: none;
+      stroke: #647E99;
+      opacity: 0.8;
+      transition: stroke 0.5s linear;
 
-    @media screen and (orientation: landscape) {
-      top: 50dvw;
-      left: 50dvh;
-      width: 100dvh;
-      height: 100dvw;
-    }
-  }
-
-  .isPlaying {
-    stroke: #3481CF;
-    opacity: 1;
-  }
-
-  .superSituation {
-    stroke: #FFCF6B;
-    opacity: 0.8;
-  }
-
-  .video {
-    position: fixed;
-    width: 100dvw;
-    height: 100dvh;
-    z-index: -1;
-    opacity: 0.5;
-    object-fit: cover;
-  }
-
-  .videoOverlay {
-    position: fixed;
-    width: 100dvw;
-    height: 100dvh;
-    background-color: black;
-    z-index: -1;
-    opacity: 0.3;
-  }
-
-  .blendOverlay {
-    position: fixed;
-    width: 93dvw;
-    height: 93dvw;
-    aspect-ratio: 1/1;
-    background-color: white;
-    mix-blend-mode: overlay;
-    z-index: -1;
-
-    @media screen and (orientation: landscape) {
-      width: 93dvh;
-      height: 93dvh;
+      @media screen and (orientation: landscape) {
+        top: 50dvw;
+        left: 50dvh;
+        width: 100dvh;
+        height: 100dvw;
+      }
     }
   }
 
@@ -417,7 +428,6 @@ onUnmounted(() => {
     justify-content: center;
     max-width: 85%;
     text-align: center;
-    z-index: 9999999999999;
 
     li {
       text-align: left;
@@ -430,6 +440,17 @@ onUnmounted(() => {
     .title {
       margin-bottom: 40px;
     }
+  }
+
+
+  .isPlaying {
+    stroke: #3481CF;
+    opacity: 1;
+  }
+
+  .superSituation {
+    stroke: #FFCF6B;
+    opacity: 0.8;
   }
 
 
