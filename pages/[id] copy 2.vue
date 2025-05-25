@@ -1,7 +1,38 @@
 <template>
+
+  <div class="console">
+    <div class="checkboxes">
+      <div>
+        <input type="checkbox" id="refs" v-model="showRefs">
+        <label for="refs">Refs</label>
+      </div>
+      <div>
+        <input type="checkbox" id="controls" v-model="showControls">
+        <label for="controls">Show Controls</label>
+      </div>
+    </div>
+    <div v-if="showRefs">
+      <div>Current: {{ current }}</div>
+      <div>Targeted QR: {{ targetedQR }}</div>
+      <div>Current sound: {{ currentSound }}</div>
+      <div>Previous sound: {{ previousSound }}</div>
+      <div>Total addiction score: {{ totalAddictionScore }}</div>
+      <div>Total awareness score: {{ totalAwarenessScore }}</div>
+      <div>Super situation counter: {{ superSituationCounter }}</div>
+      <div>Is scanning: {{ isScanning }}</div>
+      <div>Id: {{ id }}</div>
+      <div>Previous id: {{ previousId }}</div>
+      <div>Same id counter: {{ sameIdCounter }}</div>
+      <div>Should trigger: {{ shouldTrigger }}</div>
+      <div>Order: {{ order }}</div>
+      <div>Unique values: {{ uniqueValues }}</div>
+      <div>Previous question: {{ previousQuestionName }}</div>
+    </div>
+  </div>
   <div class="container">
     <video class="video" ref="videoRef" />
-    <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning" :class="isPlaying ? 'isPlaying' : ''"
+    <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning"
+      :class="current === 'targeted' ? 'targeted' : current === 'charging' ? 'charging' : current === 'isPlaying' ? 'isPlaying' : ''"
       viewBox="0 0 100 100" preserveAspectRatio="none">
       <rect id="square" x="10" y="10" width="80" height="80" rx="2" ry="2" fill="none" stroke-width="4"
         stroke-dasharray="40, 40" :stroke-dashoffset="offset" />
@@ -30,14 +61,27 @@
     <div v-if="current === 'readyForAnswer'">
       Answer by scanning [A] or [B] QR codes
     </div>
-    <div v-if="current === 'superSituation'">Super Situation...
-      <div>Total addiction score: {{ totalAddictionScore }}</div>
-      <div>Total awareness score: {{ totalAwarenessScore }}</div>
-      <div>YOU ARE COMPLETELY FUCKED UP</div>
-      <div class="startButton" @click="goTo('start')">
-        <div>OK</div>
+    <div v-if="current === 'targeted'">Targeted {{ targetedQR }}</div>
+    <div v-if="current === 'charging'">Charging...</div>
+    <div v-if="current === 'isPlaying'">Is Playing... <span class="currentSound">{{ currentSound }}</span></div>
+    <div v-if="current === 'superSituation'">Super Situation...</div>
+    <div v-if="current === 'end'">Restart</div>
+    <div class="controls" v-if="showControls">
+      <div>
+        <button @click="goTo('start')">Start</button>
+        <button @click="goTo('ready')">Ready</button>
+        <button @click="goTo('readyForAnswer')">Ready for Answer</button>
+        <button @click="goTo('targeted')">Targeted</button>
+        <button @click="goTo('charging')">Charging</button>
+        <button @click="goTo('isPlaying')">Is Playing</button>
+        <button @click="goTo('superSituation')">Super Situation</button>
+        <button @click="goTo('end')">End</button>
+      </div>
+      <div>
+        <button @click="qrScanner.stop()">Stop scanning</button>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -65,15 +109,10 @@ const id = ref(0);
 const previousId = ref(0)
 const sameIdCounter = ref(0)
 const order = ref([])
-const orderIds = ref([])
 const uniqueValues = ref(0)
 const previousQuestionName = ref(null)
 const shouldTrigger = ref(false)
 let previousQuestion = ref(null)
-const isPlaying = ref(false);
-const uniqueValuesReached = ref(false);
-
-let superSituationThreshold = 2;
 
 const {
   current,
@@ -81,6 +120,10 @@ const {
 } = useStepper([
   'start',
   'ready',
+  'readyForAnswer',
+  'targeted',
+  'charging',
+  'isPlaying',
   'superSituation',
   'end'
 ])
@@ -100,44 +143,25 @@ const stopAnimation = () => {
   });
 }
 
-watch(isPlaying, () => {
-  console.log('isPlaying', isPlaying.value);
-  if (isPlaying.value) {
+watch(current, () => {
+  console.log('current', current.value);
+  if (current.value === 'isPlaying') {
     startAnimation();
   } else {
-    stopAnimation();
-  }
-})
-
-watch(current, () => {
-  if (current.value === 'superSituation') {
-    stopScanning();
-    if (totalAddictionScore.value > totalAwarenessScore.value) {
-      playShitholeSound();
-    } else {
-      playCowSound();
-    }
+    if (animation) stopAnimation();
+    offset.value = 23.5;
   }
 
   if (current.value === 'start') {
-    superSituationCounter.value = 0
-    totalAddictionScore.value = 0;
-    totalAwarenessScore.value = 0;
-    order.value = [];
-    orderIds.value = [];
-    uniqueValues.value = 0;
-    previousQuestionName.value = null;
-    previousId.value = 0;
+    if (animation) stopAnimation();
+    stopScanning();
+    offset.value = 23.5;
   }
 })
 
 watch(order, () => {
+  console.log('order', order.value);
   uniqueValues.value = new Set(order.value).size;
-  if (uniqueValues.value > superSituationThreshold) {
-    uniqueValuesReached.value = true;
-  } else {
-    uniqueValuesReached.value = false;
-  }
 }, { deep: true })
 
 const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = useSound('/sounds/confirmation.mp3', {
@@ -145,57 +169,30 @@ const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = u
   interrupt: true,
   html5: true
 })
-
-const { play: playShitholeSound } = useSound('/sounds/shithole.mp3', {
-  volume: 1,
-  interrupt: true,
-  html5: true
-})
-
-const { play: playCowSound } = useSound('/sounds/cow.mp3', {
-  volume: 1,
-  interrupt: true,
-  html5: true
-})
-
-
 const sounds = [];
-questions.forEach(question => {
-  console.log('question path', question.path);
-  const sound = useSound(question.path, {
+scores.forEach(score => {
+  const sound = useSound('/sounds/' + score.number + '/' + score.number + 'all.mp3', {
     volume: 1,
-    interrupt: false,
+    interrupt: true,
     html5: true,
-    onplay: () => {
-      isPlaying.value = true;
-    },
-    onend: () => {
-      isPlaying.value = false;
-    }
   })
   sounds.push({
-    ...question,
+    ...score,
     sound: sound
   })
-  console.log('sounds', sounds);
 });
 
-const setAnswerToQuestion = (id, answer) => {
-  const question = getSoundById(id);
-
-  if (question.answer) {
-    totalAddictionScore.value -= question.answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
-    totalAwarenessScore.value -= question.answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
+const playByName = (name) => {
+  previousSound.value = currentSound.value;
+  const { sound, name: soundName } = sounds.find(sound => sound.name === name);
+  currentSound.value = soundName;
+  if (sound.isPlaying.value) {
+    currentSound.value = 'no currentSound';
+    Howler.stop();
+    return;
   }
-
-  question.answer = answer;
-  totalAddictionScore.value += answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
-  totalAwarenessScore.value += answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
-
-  if (uniqueValuesReached.value) {
-    console.log('uniqueValuesReached and answers set');
-    goTo('superSituation');
-  }
+  Howler.stop();
+  sound.play();
 }
 
 const getSoundById = (id) => {
@@ -203,12 +200,15 @@ const getSoundById = (id) => {
 }
 
 const playById = (id) => {
-  console.log('playing question', id);
   const { sound, name: soundName, type } = getSoundById(id);
-  Howler.stop();
+
   currentSound.value = soundName;
-  order.value.push(soundName);
-  orderIds.value.push(id);
+  if (sound.isPlaying.value) {
+    currentSound.value = 'no currentSound';
+    Howler.stop();
+    return;
+  }
+  Howler.stop();
   sound.play();
 }
 
@@ -223,51 +223,23 @@ const stopScanning = () => {
   qrScanner.stop();
 }
 
-const lastPlayedTimes = new Map();
 const scanCallback = (data) => {
   previousId.value = id.value;
   id.value = data.data.split('/')[1];
   targetedQR.value = data.data;
-
-  let isQuestion = false
-  let isAnswerA = false
-  let isAnswerB = false
-  if (id.value % 3 === 0) isQuestion = true;
-  else if (id.value % 3 === 1) isAnswerA = true;
-  else if (id.value % 3 === 2) isAnswerB = true;
-  // else if (id.value > 39 && id.value < 70) isAnswerA = true;
-  // else if (id.value > 69 && id.value < 100) isAnswerB = true;
-  // if (id.value > 0 && id.value < 20) isQuestion = true;
-
-  if (isAnswerA) {
-    const now = Date.now();
-    const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-    if (now - lastPlayedTimestamp > 3000) { // 3 seconds cooldown
-      playConfirmationSound();
-      lastPlayedTimes.set(id.value, now);
-      console.log('answer A');
-      setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'A')
-    }
+  if (previousId.value === id.value) {
+    sameIdCounter.value++;
+  } else {
+    sameIdCounter.value = 0;
+    newIdTimestamp = Date.now();
   }
 
-  if (isAnswerB) {
-    const now = Date.now();
-    const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-    if (now - lastPlayedTimestamp > 3000) { // 3 seconds cooldown
-      playConfirmationSound();
-      lastPlayedTimes.set(id.value, now);
-      console.log('answer B');
-      setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'B')
-    }
-  }
+  shouldTrigger.value = previousId.value === id.value && sameIdCounter.value > 30 && Date.now() - newIdTimestamp > 1000
 
-  if (isQuestion && !isPlaying.value) {
-    const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-    const now = Date.now();
-    if (now - lastPlayedTimestamp > 3000) { // 3 seconds cooldown
-      playById(id.value);
-      lastPlayedTimes.set(id.value, now);
-    }
+  if (shouldTrigger.value) {
+    console.log(id.value)
+    newIdTimestamp = 0
+    sameIdCounter.value = 0;
   }
 }
 
@@ -389,9 +361,7 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-.showRefs {
-  background-color: rgba(0, 0, 0, 0.8);
-}
+
 
 .controls {
   position: absolute;
