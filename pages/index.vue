@@ -1,17 +1,27 @@
 <template>
   <div class="container">
+    <!-- <div ref="console" class="console">
+      {{ isPlaying }}
+    </div> -->
     <video class="video" ref="videoRef" />
-    <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning" :class="isPlaying ? 'isPlaying' : ''"
-      viewBox="0 0 100 100" preserveAspectRatio="none">
-      <rect id="square" x="10" y="10" width="80" height="80" rx="2" ry="2" fill="none" stroke-width="4"
-        stroke-dasharray="40, 40" :stroke-dashoffset="offset" />
-    </svg>
+    <div class="videoOverlay"></div>
+    <div class="blendOverlay"></div>
+    <div class="overlay">
+      <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning"
+        :class="isSuperSituation ? 'superSituation' : isPlaying ? 'isPlaying' : ''" viewBox="0 0 100 100"
+        preserveAspectRatio="true">
+        <rect id="square" x="10" y="10" width="80" height="80" rx="2" ry="2" fill="none" stroke-width="4"
+          stroke-dasharray="40, 40" :stroke-dashoffset="offset" />
+      </svg>
+    </div>
     <div class="state" v-if="current === 'start'">
-      <div>Welcome to</div>
-      <div class="title">Rest, Reel, Reflect</div>
+      <div class="title">
+        <div>Welcome to</div>
+        <div class="rrr">Rest, Reel, Reflect</div>
+      </div>
       <div>
         <ol>
-          <li>Put the audio cable on the bed into your phone.</li>
+          <li>Put the audio cable on the bed into your phone.</li><br>
           <li>Click start and enable camera access when asked.</li>
         </ol>
       </div>
@@ -25,19 +35,19 @@
       <div class="readyText">
         Scan QR codes and listen.
       </div>
-      <div>Answer by scanning [A] or [B] QR codes.</div>
+      <div>Answer by scanning <br>[A] or [B] QR codes.</div>
     </div>
     <div v-if="current === 'readyForAnswer'">
       Answer by scanning [A] or [B] QR codes
     </div>
-    <div v-if="current === 'superSituation'">Super Situation...
+    <!-- <div v-if="current === 'superSituation'">Super Situation...
       <div>Total addiction score: {{ totalAddictionScore }}</div>
       <div>Total awareness score: {{ totalAwarenessScore }}</div>
       <div>YOU ARE COMPLETELY FUCKED UP</div>
       <div class="startButton" @click="goTo('start')">
         <div>OK</div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -47,33 +57,30 @@ import { Howler } from 'howler';
 import { animate } from 'animejs';
 
 let qrScanner;
-let newIdTimestamp = 0;
 
-
-const showControls = ref(false);
-const showRefs = ref(true);
 const offset = ref(23.5);
 const videoRef = templateRef('videoRef');
 const targetedQR = ref("no QR code targeted");
 const currentSound = ref("no currentSound");
-const previousSound = ref('no previousSound');
 const totalAddictionScore = ref(0);
 const totalAwarenessScore = ref(0);
 const superSituationCounter = ref(0);
 const isScanning = ref(false);
 const id = ref(0);
 const previousId = ref(0)
-const sameIdCounter = ref(0)
 const order = ref([])
 const orderIds = ref([])
 const uniqueValues = ref(0)
 const previousQuestionName = ref(null)
-const shouldTrigger = ref(false)
-let previousQuestion = ref(null)
 const isPlaying = ref(false);
 const uniqueValuesReached = ref(false);
+const isSuperSituation = ref(false);
+const previousAnswerToQuestionName = ref(null);
 
-let superSituationThreshold = 2;
+
+let superSituationThreshold = 0;
+const lastPlayedTimes = new Map();
+
 
 const {
   current,
@@ -81,8 +88,7 @@ const {
 } = useStepper([
   'start',
   'ready',
-  'superSituation',
-  'end'
+  'readyForAnswer',
 ])
 
 let animation;
@@ -109,27 +115,6 @@ watch(isPlaying, () => {
   }
 })
 
-watch(current, () => {
-  if (current.value === 'superSituation') {
-    stopScanning();
-    if (totalAddictionScore.value > totalAwarenessScore.value) {
-      playShitholeSound();
-    } else {
-      playCowSound();
-    }
-  }
-
-  if (current.value === 'start') {
-    superSituationCounter.value = 0
-    totalAddictionScore.value = 0;
-    totalAwarenessScore.value = 0;
-    order.value = [];
-    orderIds.value = [];
-    uniqueValues.value = 0;
-    previousQuestionName.value = null;
-    previousId.value = 0;
-  }
-})
 
 watch(order, () => {
   uniqueValues.value = new Set(order.value).size;
@@ -142,20 +127,58 @@ watch(order, () => {
 
 const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = useSound('/sounds/confirmation.mp3', {
   volume: 1,
-  interrupt: true,
-  html5: true
+  interrupt: false,
+  html5: true,
 })
+
+const resetFromSuperSituation = () => {
+  isSuperSituation.value = false;
+  superSituationCounter.value = 0;
+  totalAddictionScore.value = 0;
+  totalAwarenessScore.value = 0;
+  order.value = [];
+  orderIds.value = [];
+  uniqueValues.value = 0;
+  previousQuestionName.value = null;
+  previousId.value = 0;
+  isPlaying.value = false;
+  uniqueValuesReached.value = false;
+  previousAnswerToQuestionName.value = null;
+  previousAnswerToQuestionName.value = null;
+  lastPlayedTimes.clear();
+  stopAnimation();
+
+  // sounds.forEach(sound => {
+  //   if (sound.answer) {
+  //     delete sound.answer;
+  //   }
+  // });
+
+  goTo('ready');
+}
 
 const { play: playShitholeSound } = useSound('/sounds/shithole.mp3', {
   volume: 1,
-  interrupt: true,
-  html5: true
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
 })
 
 const { play: playCowSound } = useSound('/sounds/cow.mp3', {
   volume: 1,
-  interrupt: true,
-  html5: true
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
 })
 
 
@@ -171,6 +194,9 @@ questions.forEach(question => {
     },
     onend: () => {
       isPlaying.value = false;
+      if (question.name === previousAnswerToQuestionName.value) {
+        previousAnswerToQuestionName.value = null;
+      }
     }
   })
   sounds.push({
@@ -180,8 +206,14 @@ questions.forEach(question => {
   console.log('sounds', sounds);
 });
 
-const setAnswerToQuestion = (id, answer) => {
-  const question = getSoundById(id);
+const setAnswerToQuestion = (questionId, answer, answerId) => {
+  const question = getSoundById(questionId);
+
+  if (previousAnswerToQuestionName.value === question.name) {
+    return;
+  }
+
+  playConfirmation(answerId.value);
 
   if (question.answer) {
     totalAddictionScore.value -= question.answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
@@ -192,9 +224,19 @@ const setAnswerToQuestion = (id, answer) => {
   totalAddictionScore.value += answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
   totalAwarenessScore.value += answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
 
+  previousAnswerToQuestionName.value = question.name;
+
   if (uniqueValuesReached.value) {
     console.log('uniqueValuesReached and answers set');
-    goTo('superSituation');
+    Howler.stop();
+    isSuperSituation.value = true;
+    setTimeout(() => {
+      if (totalAddictionScore.value > totalAwarenessScore.value) {
+        playShitholeSound();
+      } else {
+        playCowSound();
+      }
+    }, 1500);
   }
 }
 
@@ -214,8 +256,10 @@ const playById = (id) => {
 
 const start = () => {
   goTo('ready');
-  qrScanner.start();
-  isScanning.value = true;
+  if (qrScanner) {
+    qrScanner.start();
+    isScanning.value = true;
+  }
 }
 
 const stopScanning = () => {
@@ -223,7 +267,12 @@ const stopScanning = () => {
   qrScanner.stop();
 }
 
-const lastPlayedTimes = new Map();
+const playConfirmation = (id) => {
+  Howler.stop();
+  playConfirmationSound();
+  lastPlayedTimes.set(id, Date.now());
+}
+
 const scanCallback = (data) => {
   previousId.value = id.value;
   id.value = data.data.split('/')[1];
@@ -239,34 +288,31 @@ const scanCallback = (data) => {
   // else if (id.value > 69 && id.value < 100) isAnswerB = true;
   // if (id.value > 0 && id.value < 20) isQuestion = true;
 
-  if (isAnswerA) {
-    const now = Date.now();
-    const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-    if (now - lastPlayedTimestamp > 3000) { // 3 seconds cooldown
-      playConfirmationSound();
-      lastPlayedTimes.set(id.value, now);
-      console.log('answer A');
-      setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'A')
+  if (!isPlaying.value) {
+    if (isAnswerA) {
+      const now = Date.now();
+      const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
+      if (now - lastPlayedTimestamp > 3000) {
+        setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'A', id)
+      }
     }
-  }
 
-  if (isAnswerB) {
-    const now = Date.now();
-    const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-    if (now - lastPlayedTimestamp > 3000) { // 3 seconds cooldown
-      playConfirmationSound();
-      lastPlayedTimes.set(id.value, now);
-      console.log('answer B');
-      setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'B')
+    if (isAnswerB) {
+      const now = Date.now();
+      const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
+      if (now - lastPlayedTimestamp > 3000) {
+        setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'B', id)
+      }
     }
-  }
 
-  if (isQuestion && !isPlaying.value) {
-    const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-    const now = Date.now();
-    if (now - lastPlayedTimestamp > 3000) { // 3 seconds cooldown
-      playById(id.value);
-      lastPlayedTimes.set(id.value, now);
+    if (isQuestion) {
+      const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
+      const now = Date.now();
+      console.log('now in isQuestion', now);
+      if (now - lastPlayedTimestamp > 3000) {
+        playById(id.value);
+        lastPlayedTimes.set(id.value, now);
+      }
     }
   }
 }
@@ -279,17 +325,17 @@ onMounted(() => {
   );
 });
 
-onUnmounted(() => {
-  stopScanning();
-  qrScanner.destroy();
-})
+// onUnmounted(() => {
+//   stopScanning();
+//   qrScanner.destroy();
+// })
 </script>
 
 <style scoped>
 .container {
   font-family: 'Inter', sans-serif;
   color: white;
-  font-size: 22px;
+  font-size: 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -298,34 +344,42 @@ onUnmounted(() => {
   height: 100dvh;
   overflow: hidden;
 
-  .customOverlay {
+  .overlay {
     position: fixed;
-    top: 50dvh;
-    left: 50dvw;
+    top: 0;
+    left: 0;
     width: 100dvw;
-    height: 100dwh;
-    transform: translate(-50%, -50%);
+    height: 100dvh;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .customOverlay {
     background: transparent;
     pointer-events: none;
     stroke: #647E99;
     opacity: 0.8;
     transition: stroke 0.5s linear;
-  }
 
-  .targeted {
-    stroke: #5D7185;
-  }
-
-  .charging {
-    stroke: #36699C;
-  }
-
-  .active {
-    stroke: #3481CF;
+    @media screen and (orientation: landscape) {
+      top: 50dvw;
+      left: 50dvh;
+      width: 100dvh;
+      height: 100dvw;
+    }
   }
 
   .isPlaying {
     stroke: #3481CF;
+    opacity: 1;
+  }
+
+  .superSituation {
+    stroke: #FFCF6B;
+    opacity: 0.8;
   }
 
   .video {
@@ -337,14 +391,39 @@ onUnmounted(() => {
     object-fit: cover;
   }
 
+  .videoOverlay {
+    position: fixed;
+    width: 100dvw;
+    height: 100dvh;
+    background-color: black;
+    z-index: -1;
+    opacity: 0.3;
+  }
+
+  .blendOverlay {
+    position: fixed;
+    width: 93dvw;
+    height: 93dvw;
+    aspect-ratio: 1/1;
+    background-color: white;
+    mix-blend-mode: overlay;
+    z-index: -1;
+
+    @media screen and (orientation: landscape) {
+      width: 93dvh;
+      height: 93dvh;
+    }
+  }
+
   .startButton {
+    margin-top: 28px;
     background-color: white;
     color: black;
     display: flex;
     align-items: center;
     justify-content: center;
     /* text-transform: uppercase; */
-    padding: 10px 10px;
+    padding: 20px 20px;
     border-radius: 5px;
     cursor: pointer;
 
@@ -360,6 +439,7 @@ onUnmounted(() => {
     justify-content: center;
     max-width: 85%;
     text-align: center;
+    z-index: 9999999999999;
 
     li {
       text-align: left;
@@ -368,9 +448,15 @@ onUnmounted(() => {
     .readyText {
       margin-bottom: 20px;
     }
+
+    .title {
+      margin-bottom: 40px;
+    }
   }
 
-  .title {
+
+
+  .rrr {
     /* font-size: 40px; */
     font-weight: bold;
   }

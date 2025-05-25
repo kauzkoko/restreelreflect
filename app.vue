@@ -13,4 +13,17 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* @media screen and (orientation: landscape) {
+  body {
+    transform: rotate(90deg);
+    transform-origin: left top;
+    width: 100vh;
+    height: 100vw;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+} */
 </style>
