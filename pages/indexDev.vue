@@ -1,4 +1,34 @@
 <template>
+
+  <div class="console">
+    <div class="checkboxes">
+      <div>
+        <input type="checkbox" id="refs" v-model="showRefs">
+        <label for="refs">Refs</label>
+      </div>
+      <div>
+        <input type="checkbox" id="controls" v-model="showControls">
+        <label for="controls">Show Controls</label>
+      </div>
+    </div>
+    <div v-if="showRefs" class="showRefs">
+      <div>Current state: {{ current }}</div>
+      <div>Is scanning: {{ isScanning }}</div>
+      <div>Current sound: {{ currentSound }}</div>
+      <div>Previous sound: {{ previousSound }}</div>
+      <div>Total addiction score: {{ totalAddictionScore }}</div>
+      <div>Total awareness score: {{ totalAwarenessScore }}</div>
+      <div>Super situation counter: {{ superSituationCounter }}</div>
+      <div>Id: {{ id }}</div>
+      <div>Previous id: {{ previousId }}</div>
+      <div>Targeted QR: {{ targetedQR }}</div>
+      <div>Order: {{ order }}</div>
+      <div>Order ids: {{ orderIds }}</div>
+      <div>Unique values: {{ uniqueValues }}</div>
+      <div>Previous question: {{ previousQuestionName }}</div>
+      <div>Is playing: {{ isPlaying }}</div>
+    </div>
+  </div>
   <div class="container">
     <video class="video" ref="videoRef" />
     <svg class="customOverlay" ref="customOverlayRef" v-if="isScanning" :class="isPlaying ? 'isPlaying' : ''"
@@ -38,6 +68,17 @@
         <div>OK</div>
       </div>
     </div>
+    <div class="controls" v-if="showControls">
+      <div>
+        <button @click="goTo('start')">Start</button>
+        <button @click="goTo('ready')">Ready</button>
+        <button @click="goTo('superSituation')">Super Situation</button>
+      </div>
+      <div>
+        <button @click="qrScanner.stop()">Stop scanning</button>
+      </div>
+    </div>
+
   </div>
 </template>
 

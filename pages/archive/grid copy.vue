@@ -6,9 +6,9 @@
 
 <script setup>
 const qrArray = ref([]);
-for (var i = 1; i < 9; i++) {
+for (var i = 1; i < 4; i++) {
   qrArray.value.push(
-    useQR("https://daerustruggles.netlify.app/scanner?id=" + i, {
+    useQR("https://daerustruggles.netlify.app/scanner?id=Q" + i, {
       margin: 5,
       errorCorrectionLevel: "H",
     })

@@ -188,7 +188,8 @@ export const questions = [
     awarenessScoreA: 2,
     addictionScoreB: 2,
     awarenessScoreB: 1,
-    id: 1
+    id: 1,
+    answer: null
   },
   {
     path: '/sounds/q2.mp3',
@@ -200,7 +201,8 @@ export const questions = [
     awarenessScoreA: 2,
     addictionScoreB: 2,
     awarenessScoreB: 1,
-    id: 2
+    id: 2,
+    answer: null
   },
   {
     path: '/sounds/q3.mp3',
@@ -212,7 +214,8 @@ export const questions = [
     awarenessScoreA: 2,
     addictionScoreB: 2,
     awarenessScoreB: 1,
-    id: 3
+    id: 3,
+    answer: null
   },
   {
     path: '/sounds/q4.mp3',
@@ -224,6 +227,215 @@ export const questions = [
     awarenessScoreA: 3,
     addictionScoreB: 0,
     awarenessScoreB: 3,
-    id: 4
+    id: 4,
+    answer: null
+  },
+  {
+    path: '/sounds/q1.mp3',
+    name: '5q',
+    number: 5,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 5,
+    answer: null
+  },
+  {
+    path: '/sounds/q2.mp3',
+    name: '6q',
+    number: 6,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 6,
+    answer: null
+  },
+  {
+    path: '/sounds/q3.mp3',
+    name: '7q',
+    number: 7,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 7,
+    answer: null
+  },
+  {
+    path: '/sounds/q4.mp3',
+    name: '8q',
+    number: 8,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 0,
+    awarenessScoreA: 3,
+    addictionScoreB: 0,
+    awarenessScoreB: 3,
+    id: 8,
+    answer: null
+  },
+  {
+    path: '/sounds/q1.mp3',
+    name: '9q',
+    number: 9,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 9,
+    answer: null
+  },
+  {
+    path: '/sounds/q2.mp3',
+    name: '10q',
+    number: 10,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 10,
+    answer: null
+  },
+  {
+    path: '/sounds/q3.mp3',
+    name: '11q',
+    number: 11,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 11,
+    answer: null
+  },
+  {
+    path: '/sounds/q4.mp3',
+    name: '12q',
+    number: 12,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 0,
+    awarenessScoreA: 3,
+    addictionScoreB: 0,
+    awarenessScoreB: 3,
+    id: 12,
+    answer: null
+  },
+  {
+    path: '/sounds/q1.mp3',
+    name: '13q',
+    number: 13,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 13,
+    answer: null
+  },
+  {
+    path: '/sounds/q2.mp3',
+    name: '14q',
+    number: 14,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 14,
+    answer: null
+  },
+  {
+    path: '/sounds/q3.mp3',
+    name: '15q',
+    number: 15,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 15,
+    answer: null
+  },
+  {
+    path: '/sounds/q4.mp3',
+    name: '16q',
+    number: 16,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 0,
+    awarenessScoreA: 3,
+    addictionScoreB: 0,
+    awarenessScoreB: 3,
+    id: 16,
+    answer: null
+  },
+  {
+    path: '/sounds/q1.mp3',
+    name: '17q',
+    number: 17,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 17,
+    answer: null
+  },
+  {
+    path: '/sounds/q2.mp3',
+    name: '18q',
+    number: 18,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 18,
+    answer: null
+  },
+  {
+    path: '/sounds/q3.mp3',
+    name: '19q',
+    number: 19,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 1,
+    awarenessScoreA: 2,
+    addictionScoreB: 2,
+    awarenessScoreB: 1,
+    id: 19,
+    answer: null
+  },
+  {
+    path: '/sounds/q4.mp3',
+    name: '20q',
+    number: 20,
+    type: 'question',
+    letter: 'q',
+    addictionScoreA: 0,
+    awarenessScoreA: 3,
+    addictionScoreB: 0,
+    awarenessScoreB: 3,
+    id: 20,
+    answer: null
   }
 ]
