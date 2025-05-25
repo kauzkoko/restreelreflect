@@ -327,7 +327,7 @@ onUnmounted(() => {
     left: 0;
     width: 100dvw;
     height: 100dvh;
-    z-index: 99999999999999999999;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -340,7 +340,6 @@ onUnmounted(() => {
     stroke: #647E99;
     opacity: 0.8;
     transition: stroke 0.5s linear;
-    z-index: 99999999999999999999;
 
     @media screen and (orientation: landscape) {
       top: 50dvw;
