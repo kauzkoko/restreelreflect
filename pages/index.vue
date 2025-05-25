@@ -1,8 +1,5 @@
 <template>
   <div class="container">
-    <!-- <div ref="console" class="console">
-      {{ isPlaying }}
-    </div> -->
     <video class="video" ref="videoRef" />
     <div class="videoOverlay"></div>
     <div class="blendOverlay"></div>
@@ -40,14 +37,6 @@
     <div v-if="current === 'readyForAnswer'">
       Answer by scanning [A] or [B] QR codes
     </div>
-    <!-- <div v-if="current === 'superSituation'">Super Situation...
-      <div>Total addiction score: {{ totalAddictionScore }}</div>
-      <div>Total awareness score: {{ totalAwarenessScore }}</div>
-      <div>YOU ARE COMPLETELY FUCKED UP</div>
-      <div class="startButton" @click="goTo('start')">
-        <div>OK</div>
-      </div>
-    </div> -->
   </div>
 </template>
 
@@ -60,8 +49,6 @@ let qrScanner;
 
 const offset = ref(23.5);
 const videoRef = templateRef('videoRef');
-const targetedQR = ref("no QR code targeted");
-const currentSound = ref("no currentSound");
 const totalAddictionScore = ref(0);
 const totalAwarenessScore = ref(0);
 const superSituationCounter = ref(0);
@@ -146,13 +133,6 @@ const resetFromSuperSituation = () => {
   previousAnswerToQuestionName.value = null;
   lastPlayedTimes.clear();
   stopAnimation();
-
-  // sounds.forEach(sound => {
-  //   if (sound.answer) {
-  //     delete sound.answer;
-  //   }
-  // });
-
   goTo('ready');
 }
 
@@ -247,7 +227,6 @@ const playById = (id) => {
   console.log('playing question', id);
   const { sound, name: soundName, type } = getSoundById(id);
   Howler.stop();
-  currentSound.value = soundName;
   order.value.push(soundName);
   orderIds.value.push(id);
   sound.play();
@@ -275,7 +254,6 @@ const playConfirmation = (id) => {
 const scanCallback = (data) => {
   previousId.value = id.value;
   id.value = data.data.split('/')[1];
-  targetedQR.value = data.data;
 
   let isQuestion = false
   let isAnswerA = false
@@ -324,10 +302,10 @@ onMounted(() => {
   );
 });
 
-// onUnmounted(() => {
-//   stopScanning();
-//   qrScanner.destroy();
-// })
+onUnmounted(() => {
+  stopScanning();
+  qrScanner.destroy();
+})
 </script>
 
 <style scoped>
@@ -454,42 +432,9 @@ onMounted(() => {
   }
 
 
-
   .rrr {
-    /* font-size: 40px; */
     font-weight: bold;
   }
 
-  .currentSound {
-    color: red;
-  }
-}
-
-.console {
-  position: absolute;
-  top: 0;
-  left: 0;
-  color: red;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.showRefs {
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  button {
-    font-size: 14px;
-    margin: 4px;
-  }
 }
 </style>
