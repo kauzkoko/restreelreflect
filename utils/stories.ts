@@ -231,7 +231,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q1.mp3',
+    path: '/sounds/q5.mp3',
     name: '5q',
     number: 5,
     type: 'question',
@@ -244,7 +244,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q2.mp3',
+    path: '/sounds/q6.mp3',
     name: '6q',
     number: 6,
     type: 'question',
@@ -257,7 +257,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q3.mp3',
+    path: '/sounds/q7.mp3',
     name: '7q',
     number: 7,
     type: 'question',
@@ -270,7 +270,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q4.mp3',
+    path: '/sounds/q8.mp3',
     name: '8q',
     number: 8,
     type: 'question',
@@ -283,7 +283,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q1.mp3',
+    path: '/sounds/q9.mp3',
     name: '9q',
     number: 9,
     type: 'question',
@@ -296,7 +296,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q2.mp3',
+    path: '/sounds/q10.mp3',
     name: '10q',
     number: 10,
     type: 'question',
@@ -309,7 +309,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q3.mp3',
+    path: '/sounds/q11.mp3',
     name: '11q',
     number: 11,
     type: 'question',
@@ -322,7 +322,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q4.mp3',
+    path: '/sounds/q12.mp3',
     name: '12q',
     number: 12,
     type: 'question',
@@ -335,7 +335,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q1.mp3',
+    path: '/sounds/q13.mp3',
     name: '13q',
     number: 13,
     type: 'question',
@@ -348,7 +348,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q2.mp3',
+    path: '/sounds/q14.mp3',
     name: '14q',
     number: 14,
     type: 'question',
@@ -361,7 +361,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q3.mp3',
+    path: '/sounds/q15.mp3',
     name: '15q',
     number: 15,
     type: 'question',
@@ -374,7 +374,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q4.mp3',
+    path: '/sounds/q16.mp3',
     name: '16q',
     number: 16,
     type: 'question',
@@ -387,7 +387,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q1.mp3',
+    path: '/sounds/q17.mp3',
     name: '17q',
     number: 17,
     type: 'question',
@@ -400,7 +400,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q2.mp3',
+    path: '/sounds/q18.mp3',
     name: '18q',
     number: 18,
     type: 'question',
@@ -413,7 +413,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q3.mp3',
+    path: '/sounds/q19.mp3',
     name: '19q',
     number: 19,
     type: 'question',
@@ -426,7 +426,7 @@ export const questions = [
     answer: null
   },
   {
-    path: '/sounds/q4.mp3',
+    path: '/sounds/q20.mp3',
     name: '20q',
     number: 20,
     type: 'question',

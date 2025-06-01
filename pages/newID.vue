@@ -52,6 +52,9 @@
 import QrScanner from "qr-scanner";
 import { Howler } from 'howler';
 import { animate } from 'animejs';
+import { questions } from '~/utils/stories';
+import { useStepper } from '~/composables/useStepper';
+import { useSound } from '~/composables/useSound';
 
 let qrScanner;
 
@@ -70,9 +73,9 @@ const previousQuestionName = ref(null)
 const isPlaying = ref(false);
 const uniqueValuesReached = ref(false);
 const isSuperSituation = ref(false);
-const previousAnswerToQuestionName = ref(null);
+const previousAnswerToQuestionName = ref("");
 
-let superSituationThreshold = 3;
+let superSituationThreshold = 1;
 const lastPlayedTimes = new Map();
 
 
@@ -135,8 +138,8 @@ const resetFromSuperSituation = () => {
   previousId.value = 0;
   isPlaying.value = false;
   uniqueValuesReached.value = false;
-  previousAnswerToQuestionName.value = null;
-  previousAnswerToQuestionName.value = null;
+  previousAnswerToQuestionName.value = "";
+  previousAnswerToQuestionName.value = "";
   lastPlayedTimes.clear();
   stopAnimation();
   goTo('ready');
@@ -179,7 +182,7 @@ questions.forEach(question => {
     onend: () => {
       isPlaying.value = false;
       if (question.name === previousAnswerToQuestionName.value) {
-        previousAnswerToQuestionName.value = null;
+        previousAnswerToQuestionName.value = "";
       }
     }
   })
@@ -191,6 +194,15 @@ questions.forEach(question => {
 
 const setAnswerToQuestion = (questionId, answer, answerId) => {
   const question = getSoundById(questionId);
+  console.log('question', question);
+  console.log('questionId', questionId);
+  console.log('answer', answer);
+  console.log('answerId', answerId);
+
+  if (!question) {
+    console.warn('Question not found for ID:', questionId);
+    return;
+  }
 
   if (previousAnswerToQuestionName.value === question.name) {
     return;
@@ -227,7 +239,15 @@ const getSoundById = (id) => {
 }
 
 const playById = (id) => {
-  const { sound, name: soundName, type } = getSoundById(id);
+  const soundData = getSoundById(id);
+  
+  // Add safety check to prevent error when sound is undefined
+  if (!soundData) {
+    console.warn('Sound not found for ID:', id);
+    return;
+  }
+  
+  const { sound, name: soundName, type } = soundData;
   Howler.stop();
   order.value.push(soundName);
   orderIds.value.push(id);

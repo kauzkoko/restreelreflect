@@ -56,14 +56,14 @@ const isScanning = ref(false);
 const id = ref(0);
 const previousId = ref(0)
 const order = ref([])
-const orderIds = ref([])
+const orderIds = ref([])  
 const uniqueValues = ref(0)
-const previousQuestionName = ref(null)
+const previousQuestionName = ref("");
+const previousAnswerToQuestionName = ref("");
+
 const isPlaying = ref(false);
 const uniqueValuesReached = ref(false);
 const isSuperSituation = ref(false);
-const previousAnswerToQuestionName = ref(null);
-
 let superSituationThreshold = 3;
 const lastPlayedTimes = new Map();
 
@@ -129,8 +129,8 @@ const resetFromSuperSituation = () => {
   previousId.value = 0;
   isPlaying.value = false;
   uniqueValuesReached.value = false;
-  previousAnswerToQuestionName.value = null;
-  previousAnswerToQuestionName.value = null;
+  previousAnswerToQuestionName.value = "";
+  previousAnswerToQuestionName.value = "";
   lastPlayedTimes.clear();
   stopAnimation();
   goTo('ready');
@@ -173,8 +173,8 @@ questions.forEach(question => {
     },
     onend: () => {
       isPlaying.value = false;
-      if (question.name === previousAnswerToQuestionName.value) {
-        previousAnswerToQuestionName.value = null;
+      if (question.name && question.name === previousAnswerToQuestionName.value) {
+        previousAnswerToQuestionName.value = "";
       }
     }
   })
@@ -182,13 +182,12 @@ questions.forEach(question => {
     ...question,
     sound: sound
   })
-  console.log('sounds', sounds);
 });
 
 const setAnswerToQuestion = (questionId, answer, answerId) => {
   const question = getSoundById(questionId);
 
-  if (previousAnswerToQuestionName.value === question.name) {
+  if (question.name && previousAnswerToQuestionName.value === question.name) {
     return;
   }
 
@@ -203,7 +202,9 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
   totalAddictionScore.value += answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
   totalAwarenessScore.value += answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
 
-  previousAnswerToQuestionName.value = question.name;
+  if (question.name) {
+    previousAnswerToQuestionName.value = question.name;
+  }
 
   if (uniqueValuesReached.value) {
     console.log('uniqueValuesReached and answers set');
@@ -254,19 +255,19 @@ const playConfirmation = (id) => {
 const scanCallback = (data) => {
   previousId.value = id.value;
   id.value = data.data.split('/')[1];
+  console.log('id', id.value);
 
   let isQuestion = false
   let isAnswerA = false
   let isAnswerB = false
-  if (id.value % 3 === 0) isQuestion = true;
-  else if (id.value % 3 === 1) isAnswerA = true;
-  else if (id.value % 3 === 2) isAnswerB = true;
-  // else if (id.value > 39 && id.value < 70) isAnswerA = true;
-  // else if (id.value > 69 && id.value < 100) isAnswerB = true;
-  // if (id.value > 0 && id.value < 20) isQuestion = true;
+
+  if (id.value > 0 && id.value < 21) isQuestion = true;
+  else if (id.value == 40) isAnswerA = true;
+  else if (id.value == 70) isAnswerB = true;
 
   if (!isPlaying.value) {
     if (isAnswerA) {
+      console.log('isAnswerA', isAnswerA);
       const now = Date.now();
       const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
       if (now - lastPlayedTimestamp > 3000) {
@@ -298,7 +299,7 @@ onMounted(() => {
   qrScanner = new QrScanner(
     videoRef.value,
     scanCallback,
-    { returnDetailedScanResult: true }
+    { returnDetailedScanResult: true, maxScansPerSecond: 5 }
   );
 });
 

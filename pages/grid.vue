@@ -1,10 +1,16 @@
 <template>
   <div class="grid">
-    <div v-for="qr in qrArray" class="qr" :style="{ backgroundColor: qr.letter === 'a' ? 'red' : qr.letter === 'b' ? 'blue' : 'white' }">
-      <div>{{ qr.type }}</div>
-      <div style="font-size: 50px;">{{ qr.letter }}</div>
-      <div>{{ qr.id }}</div>
+    <div v-for="(qr, index) in qrArray" class="qr">
+      <div style="font-size: 50px;">{{ index + 1 }}</div>
       <img :src="qr.qr" class="qr" />
+    </div>
+    <div class="bg-red-500 p-5 flex flex-col items-center justify-center">
+      <div style="font-size: 50px;">A</div>
+      <img :src="qrA" class="qr" />
+    </div>
+    <div class="bg-blue-500 p-5 flex flex-col items-center justify-center">
+      <div style="font-size: 50px;">B</div>
+      <img :src="qrB" class="qr" />
     </div>
   </div>
 </template>
@@ -12,30 +18,36 @@
 <script setup>
 const qrArray = ref([]);
 
-scores.forEach((score, i) => {
-  console.log(score.name, score.id);
+for (let i = 1; i < 21; i++) {
   qrArray.value.push({
-    type: score.type,
-    letter: score.letter,
-    id: score.id,
-    qr: useQR("rerere.cc/" + score.id, {
+    type: 'question',
+    letter: 'q',
+    id: i,
+    qr: useQR("rerere.cc/" + i, {
       margin: 5,
       errorCorrectionLevel: "H",
     })
-  }
+  });
+}
 
-  );
-});
+const qrA = useQR("rerere.cc/40", {
+  margin: 5,
+  errorCorrectionLevel: "H",
+})
+
+const qrB = useQR("rerere.cc/70", {
+  margin: 5,  
+  errorCorrectionLevel: "H",
+})
 </script>
 
 <style>
 .grid {
   background-color: white;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 50px;
   width: 100dvw;
-  height: 100dvh;
 }
 
 .qr {
