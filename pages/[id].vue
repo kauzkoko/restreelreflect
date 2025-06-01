@@ -64,7 +64,7 @@ const previousAnswerToQuestionName = ref("");
 const isPlaying = ref(false);
 const uniqueValuesReached = ref(false);
 const isSuperSituation = ref(false);
-let superSituationThreshold = 1;
+let superSituationThreshold = 3;
 const lastPlayedTimes = new Map();
 
 
@@ -299,7 +299,7 @@ onMounted(() => {
   qrScanner = new QrScanner(
     videoRef.value,
     scanCallback,
-    { returnDetailedScanResult: true }
+    { returnDetailedScanResult: true, maxScansPerSecond: 5 }
   );
 });
 
