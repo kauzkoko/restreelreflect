@@ -56,7 +56,7 @@ const isScanning = ref(false);
 const id = ref(0);
 const previousId = ref(0)
 const order = ref([])
-const orderIds = ref([])  
+const orderIds = ref([])
 const uniqueValues = ref(0)
 const previousQuestionName = ref("");
 const previousAnswerToQuestionName = ref("");
@@ -184,6 +184,187 @@ questions.forEach(question => {
   })
 });
 
+
+const superSituation00 = useSound('/sounds/ss_00.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation01 = useSound('/sounds/ss_01.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation02 = useSound('/sounds/ss_02.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation03 = useSound('/sounds/ss_03.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation04 = useSound('/sounds/ss_04.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation10 = useSound('/sounds/ss_10.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation11 = useSound('/sounds/ss_11.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation12 = useSound('/sounds/ss_12.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation13 = useSound('/sounds/ss_13.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation20 = useSound('/sounds/ss_20.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation21 = useSound('/sounds/ss_21.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation22 = useSound('/sounds/ss_22.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation30 = useSound('/sounds/ss_30.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation31 = useSound('/sounds/ss_31.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
+const superSituation40 = useSound('/sounds/ss_40.mp3', {
+  volume: 1,
+  interrupt: false,
+  html5: true,
+  onplay: () => {
+    isPlaying.value = true;
+  },
+  onend: () => {
+    resetFromSuperSituation();
+  }
+})
+
 const setAnswerToQuestion = (questionId, answer, answerId) => {
   const question = getSoundById(questionId);
 
@@ -211,13 +392,39 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
     Howler.stop();
     isSuperSituation.value = true;
     setTimeout(() => {
-      if (totalXScore.value > totalYScore.value) {
-        playShitholeSound();
-      } else {
-        playCowSound();
-      }
-    }, 1500);
-  }
+      if (totalXScore.value === 0 && totalYScore.value === 0) {
+        superSituation00.play();
+      } else if (totalXScore.value === 0 && totalYScore.value === 1) {
+        superSituation01.play();
+      } else if (totalXScore.value === 0 && totalYScore.value === 2) {
+        superSituation02.play();
+      } else if (totalXScore.value === 0 && totalYScore.value === 3) {
+        superSituation03.play();
+      } else if (totalXScore.value === 0 && totalYScore.value === 4) {
+        superSituation04.play();
+      } else if (totalXScore.value === 1 && totalYScore.value === 0) {
+        superSituation10.play();
+      } else if (totalXScore.value === 1 && totalYScore.value === 1) {
+        superSituation11.play();
+      } else if (totalXScore.value === 1 && totalYScore.value === 2) {
+        superSituation12.play();
+      } else if (totalXScore.value === 1 && totalYScore.value === 3) {
+        superSituation13.play();
+      } else if (totalXScore.value === 2 && totalYScore.value === 0) {
+        superSituation20.play();
+      } else if (totalXScore.value === 2 && totalYScore.value === 1) {
+        superSituation21.play();
+      } else if (totalXScore.value === 2 && totalYScore.value === 2) {
+        superSituation22.play();
+      } else if (totalXScore.value === 3 && totalYScore.value === 0) {
+        superSituation30.play();
+      } else if (totalXScore.value === 3 && totalYScore.value === 1) {
+        superSituation31.play();
+      } else if (totalXScore.value === 4 && totalYScore.value === 0) {
+        superSituation40.play();
+      } else resetFromSuperSituation();
+    });
+  };
 }
 
 const getSoundById = (id) => {
@@ -260,6 +467,11 @@ const scanCallback = (data) => {
   let isQuestion = false
   let isAnswerA = false
   let isAnswerB = false
+
+  if (id.value.startsWith('0')) {
+    id.value = id.value.slice(1);
+  }
+  console.log('id', id.value);
 
   if (id.value > 0 && id.value < 21) isQuestion = true;
   else if (id.value == 40) isAnswerA = true;

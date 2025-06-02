@@ -468,6 +468,11 @@ const scanCallback = (data) => {
   let isAnswerA = false
   let isAnswerB = false
 
+  if (id.value.startsWith('0')) {
+    id.value = id.value.slice(1);
+  }
+  console.log('id', id.value);
+
   if (id.value > 0 && id.value < 21) isQuestion = true;
   else if (id.value == 40) isAnswerA = true;
   else if (id.value == 70) isAnswerB = true;
