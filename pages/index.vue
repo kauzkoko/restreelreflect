@@ -32,7 +32,7 @@
       <div class="readyText">
         Scan QR codes and listen.
       </div>
-      <div>Answer by scanning <br>[A] or [B] QR codes.</div>
+      <div>Answer by scanning <br><span class="answerA">[A]</span> or <span class="answerB">[B]</span> QR codes.</div>
     </div>
     <div v-if="current === 'readyForAnswer'">
       Answer by scanning [A] or [B] QR codes
@@ -374,6 +374,8 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
 
   playConfirmation(answerId.value);
 
+  
+
   if (question.answer) {
     totalXScore.value -= question.answer === 'A' ? question.xA : question.xB;
     totalYScore.value -= question.answer === 'A' ? question.yA : question.yB;
@@ -649,5 +651,14 @@ onUnmounted(() => {
     font-weight: bold;
   }
 
+  .answerA {
+    color: #F3CFC5;
+    font-weight: bold;
+  }
+
+  .answerB {
+    color: #C4EAFF;
+    font-weight: bold;
+  }
 }
 </style>
