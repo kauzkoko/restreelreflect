@@ -32,7 +32,7 @@
       <div class="readyText">
         Scan QR codes and listen.
       </div>
-      <div>Answer by scanning <br><span class="text-hex-F3CFC5! font-bold">A</span> or <span class="text-hex-C4EAFF! font-bold">B</span> QR codes.</div>
+      <div>Answer by scanning <br><span class="answerA">[A]</span> or <span class="answerB">[B]</span> QR codes.</div>
     </div>
     <div v-if="current === 'readyForAnswer'">
       Answer by scanning [A] or [B] QR codes
@@ -651,5 +651,14 @@ onUnmounted(() => {
     font-weight: bold;
   }
 
+  .answerA {
+    color: #F3CFC5;
+    font-weight: bold;
+  }
+
+  .answerB {
+    color: #C4EAFF;
+    font-weight: bold;
+  }
 }
 </style>
