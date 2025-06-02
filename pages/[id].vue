@@ -49,8 +49,8 @@ let qrScanner;
 
 const offset = ref(23.5);
 const videoRef = templateRef('videoRef');
-const totalAddictionScore = ref(0);
-const totalAwarenessScore = ref(0);
+const totalXScore = ref(0);
+const totalYScore = ref(0);
 const superSituationCounter = ref(0);
 const isScanning = ref(false);
 const id = ref(0);
@@ -120,8 +120,8 @@ const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = u
 const resetFromSuperSituation = () => {
   isSuperSituation.value = false;
   superSituationCounter.value = 0;
-  totalAddictionScore.value = 0;
-  totalAwarenessScore.value = 0;
+  totalXScore.value = 0;
+  totalYScore.value = 0;
   order.value = [];
   orderIds.value = [];
   uniqueValues.value = 0;
@@ -194,13 +194,13 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
   playConfirmation(answerId.value);
 
   if (question.answer) {
-    totalAddictionScore.value -= question.answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
-    totalAwarenessScore.value -= question.answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
+    totalXScore.value -= question.answer === 'A' ? question.xA : question.xB;
+    totalYScore.value -= question.answer === 'A' ? question.yA : question.yB;
   }
 
   question.answer = answer;
-  totalAddictionScore.value += answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
-  totalAwarenessScore.value += answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
+  totalXScore.value += answer === 'A' ? question.xA : question.xB;
+  totalYScore.value += answer === 'A' ? question.yA : question.yB;
 
   if (question.name) {
     previousAnswerToQuestionName.value = question.name;
@@ -211,7 +211,7 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
     Howler.stop();
     isSuperSituation.value = true;
     setTimeout(() => {
-      if (totalAddictionScore.value > totalAwarenessScore.value) {
+      if (totalXScore.value > totalYScore.value) {
         playShitholeSound();
       } else {
         playCowSound();

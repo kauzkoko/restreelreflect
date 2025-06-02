@@ -49,14 +49,14 @@ let qrScanner;
 
 const offset = ref(23.5);
 const videoRef = templateRef('videoRef');
-const totalXScore = ref(0);
-const totalYScore = ref(0);
+const totalAddictionScore = ref(0);
+const totalAwarenessScore = ref(0);
 const superSituationCounter = ref(0);
 const isScanning = ref(false);
 const id = ref(0);
 const previousId = ref(0)
 const order = ref([])
-const orderIds = ref([])
+const orderIds = ref([])  
 const uniqueValues = ref(0)
 const previousQuestionName = ref("");
 const previousAnswerToQuestionName = ref("");
@@ -120,8 +120,8 @@ const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = u
 const resetFromSuperSituation = () => {
   isSuperSituation.value = false;
   superSituationCounter.value = 0;
-  totalXScore.value = 0;
-  totalYScore.value = 0;
+  totalAddictionScore.value = 0;
+  totalAwarenessScore.value = 0;
   order.value = [];
   orderIds.value = [];
   uniqueValues.value = 0;
@@ -184,187 +184,6 @@ questions.forEach(question => {
   })
 });
 
-
-const superSituation00 = useSound('/sounds/ss_00.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation01 = useSound('/sounds/ss_01.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation02 = useSound('/sounds/ss_02.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation03 = useSound('/sounds/ss_03.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation04 = useSound('/sounds/ss_04.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation10 = useSound('/sounds/ss_10.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation11 = useSound('/sounds/ss_11.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation12 = useSound('/sounds/ss_12.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation13 = useSound('/sounds/ss_13.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation20 = useSound('/sounds/ss_20.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation21 = useSound('/sounds/ss_21.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation22 = useSound('/sounds/ss_22.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation30 = useSound('/sounds/ss_30.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation31 = useSound('/sounds/ss_31.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
-const superSituation40 = useSound('/sounds/ss_40.mp3', {
-  volume: 1,
-  interrupt: false,
-  html5: true,
-  onplay: () => {
-    isPlaying.value = true;
-  },
-  onend: () => {
-    resetFromSuperSituation();
-  }
-})
-
 const setAnswerToQuestion = (questionId, answer, answerId) => {
   const question = getSoundById(questionId);
 
@@ -375,13 +194,13 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
   playConfirmation(answerId.value);
 
   if (question.answer) {
-    totalXScore.value -= question.answer === 'A' ? question.xA : question.xB;
-    totalYScore.value -= question.answer === 'A' ? question.yA : question.yB;
+    totalAddictionScore.value -= question.answer === 'A' ? question.xA : question.addictionScoreB;
+    totalAwarenessScore.value -= question.answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
   }
 
   question.answer = answer;
-  totalXScore.value += answer === 'A' ? question.xA : question.xB;
-  totalYScore.value += answer === 'A' ? question.yA : question.yB;
+  totalAddictionScore.value += answer === 'A' ? question.addictionScoreA : question.addictionScoreB;
+  totalAwarenessScore.value += answer === 'A' ? question.awarenessScoreA : question.awarenessScoreB;
 
   if (question.name) {
     previousAnswerToQuestionName.value = question.name;
@@ -392,39 +211,13 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
     Howler.stop();
     isSuperSituation.value = true;
     setTimeout(() => {
-      if (totalXScore.value === 0 && totalYScore.value === 0) {
-        superSituation00.play();
-      } else if (totalXScore.value === 0 && totalYScore.value === 1) {
-        superSituation01.play();
-      } else if (totalXScore.value === 0 && totalYScore.value === 2) {
-        superSituation02.play();
-      } else if (totalXScore.value === 0 && totalYScore.value === 3) {
-        superSituation03.play();
-      } else if (totalXScore.value === 0 && totalYScore.value === 4) {
-        superSituation04.play();
-      } else if (totalXScore.value === 1 && totalYScore.value === 0) {
-        superSituation10.play();
-      } else if (totalXScore.value === 1 && totalYScore.value === 1) {
-        superSituation11.play();
-      } else if (totalXScore.value === 1 && totalYScore.value === 2) {
-        superSituation12.play();
-      } else if (totalXScore.value === 1 && totalYScore.value === 3) {
-        superSituation13.play();
-      } else if (totalXScore.value === 2 && totalYScore.value === 0) {
-        superSituation20.play();
-      } else if (totalXScore.value === 2 && totalYScore.value === 1) {
-        superSituation21.play();
-      } else if (totalXScore.value === 2 && totalYScore.value === 2) {
-        superSituation22.play();
-      } else if (totalXScore.value === 3 && totalYScore.value === 0) {
-        superSituation30.play();
-      } else if (totalXScore.value === 3 && totalYScore.value === 1) {
-        superSituation31.play();
-      } else if (totalXScore.value === 4 && totalYScore.value === 0) {
-        superSituation40.play();
-      } else resetFromSuperSituation();
-    });
-  };
+      if (totalAddictionScore.value > totalAwarenessScore.value) {
+        playShitholeSound();
+      } else {
+        playCowSound();
+      }
+    }, 1500);
+  }
 }
 
 const getSoundById = (id) => {
