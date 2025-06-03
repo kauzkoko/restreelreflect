@@ -1,7 +1,6 @@
 <template>
   <div class="container">
-    <div class="qr-reader" id="reader"></div>
-    <video class="video" ref="videoRef" id="video" />
+    <video class="video" ref="videoRef" />
     <div class="videoOverlay"></div>
     <div class="blendOverlay"></div>
     <div class="overlay">
@@ -42,9 +41,9 @@
 </template>
 
 <script setup>
+import QrScanner from "qr-scanner";
 import { Howler } from 'howler';
 import { animate } from 'animejs';
-import {  BrowserQRCodeReader } from '@zxing/library';
 
 let qrScanner;
 
@@ -133,7 +132,7 @@ const resetFromSuperSituation = () => {
   previousAnswerToQuestionName.value = "";
   previousAnswerToQuestionName.value = "";
   lastPlayedTimes.clear();
-  // stopAnimation();
+  stopAnimation();
   goTo('ready');
 }
 
@@ -375,7 +374,7 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
 
   playConfirmation(answerId.value);
 
-
+  
 
   if (question.answer) {
     totalXScore.value -= question.answer === 'A' ? question.xA : question.xB;
@@ -443,20 +442,17 @@ const playById = (id) => {
   sound.play();
 }
 
-
-
 const start = () => {
   goTo('ready');
   if (qrScanner) {
-    scanCallback(qrScanner, selectedDeviceId);
+    qrScanner.start();
     isScanning.value = true;
   }
 }
 
 const stopScanning = () => {
   isScanning.value = false;
-  // qrScanner.stop();
-  // qrScanner.clear();
+  qrScanner.stop();
 }
 
 const playConfirmation = (id) => {
@@ -465,139 +461,65 @@ const playConfirmation = (id) => {
   lastPlayedTimes.set(id, Date.now());
 }
 
-// function onScanSuccess(decodedText, decodedResult) {
-//     // Handle on success condition with the decoded text or result.
-//     console.log(`Scan result: ${decodedText}`, decodedResult);
-//     id.value = decodedText;
-// }
+const scanCallback = (data) => {
+  previousId.value = id.value;
+  id.value = data.data.split('/')[1];
+  console.log('id', id.value);
 
-// function scanCallback(codeReader, selectedDeviceId) {
-//   codeReader.decodeFromInputVideoDeviceContinuously(selectedDeviceId, 'video', (result, err) => {
-//     if (result) {
-//       // properly decoded qr code
-//       console.log('Found QR code!', result)
-//     }
-//   })
-// }
+  let isQuestion = false
+  let isAnswerA = false
+  let isAnswerB = false
 
-const scanCallback = (codeReader, selectedDeviceId) => {
-  codeReader.decodeFromInputVideoDeviceContinuously(selectedDeviceId, 'video', (result, err) => {
-    if (result && !isPlaying.value) {
+  if (id.value.startsWith('0')) {
+    id.value = id.value.slice(1);
+  }
+  console.log('id', id.value);
 
-      previousId.value = id.value;
-      // id.value = decodedText;
-      // id.value = decodedText.split('/')[1];
-      // console.log('id', id.value);
-      // http://rerere.cc/18 
+  if (id.value > 0 && id.value < 21) isQuestion = true;
+  else if (id.value == 40) isAnswerA = true;
+  else if (id.value == 70) isAnswerB = true;
 
-      id.value = result.text.split('/').pop();
-      console.log(id); // 
-
-      let isQuestion = false
-      let isAnswerA = false
-      let isAnswerB = false
-
-      if (id.value.startsWith('0')) {
-        id.value = id.value.slice(1);
-      }
-      console.log('id', id.value);
-
-      if (id.value > 0 && id.value < 21) isQuestion = true;
-      else if (id.value == 40) isAnswerA = true;
-      else if (id.value == 70) isAnswerB = true;
-
-      if (!isPlaying.value) {
-        if (isAnswerA) {
-          console.log('isAnswerA', isAnswerA);
-          const now = Date.now();
-          const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-          if (now - lastPlayedTimestamp > 3000) {
-            setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'A', id)
-          }
-        }
-
-        if (isAnswerB) {
-          const now = Date.now();
-          const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-          if (now - lastPlayedTimestamp > 3000) {
-            setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'B', id)
-          }
-        }
-
-        if (isQuestion) {
-          const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
-          const now = Date.now();
-          console.log('now in isQuestion', now);
-          if (now - lastPlayedTimestamp > 3000) {
-            playById(id.value);
-            lastPlayedTimes.set(id.value, now);
-          }
-        }
+  if (!isPlaying.value) {
+    if (isAnswerA) {
+      console.log('isAnswerA', isAnswerA);
+      const now = Date.now();
+      const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
+      if (now - lastPlayedTimestamp > 3000) {
+        setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'A', id)
       }
     }
-  })
+
+    if (isAnswerB) {
+      const now = Date.now();
+      const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
+      if (now - lastPlayedTimestamp > 3000) {
+        setAnswerToQuestion(orderIds.value[orderIds.value.length - 1], 'B', id)
+      }
+    }
+
+    if (isQuestion) {
+      const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
+      const now = Date.now();
+      console.log('now in isQuestion', now);
+      if (now - lastPlayedTimestamp > 3000) {
+        playById(id.value);
+        lastPlayedTimes.set(id.value, now);
+      }
+    }
+  }
 }
 
-let selectedDeviceId;
 onMounted(() => {
-  // qrScanner = new QrScanner(
-  //   videoRef.value,
-  //   scanCallback,
-  //   { returnDetailedScanResult: true, maxScansPerSecond: 5 }
-  // );
-  qrScanner = new BrowserQRCodeReader()
-
-  qrScanner.getVideoInputDevices()
-    .then((videoInputDevices) => {
-      // const sourceSelect = document.getElementById('sourceSelect')
-      selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId
-      // if (videoInputDevices.length >= 1) {
-      //   videoInputDevices.forEach((element) => {
-      //     const sourceOption = document.createElement('option')
-      //     sourceOption.text = element.label
-      //     sourceOption.value = element.deviceId
-      //     sourceSelect.appendChild(sourceOption)
-      //   })
-
-      //   sourceSelect.onchange = () => {
-      //     selectedDeviceId = sourceSelect.value;
-      //   };
-
-      //   const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-      //   sourceSelectPanel.style.display = 'block'
-      // }
-
-      // document.getElementById('startButton').addEventListener('click', () => {
-
-      //   const decodingStyle = document.getElementById('decoding-style').value;
-
-      //   if (decodingStyle == "once") {
-      //     decodeOnce(codeReader, selectedDeviceId);
-      //   } else {
-      //     decodeContinuously(codeReader, selectedDeviceId);
-      //   }
-
-      //   console.log(`Started decode from camera with id ${selectedDeviceId}`)
-      // })
-
-      // document.getElementById('resetButton').addEventListener('click', () => {
-      //   codeReader.reset()
-      //   document.getElementById('result').textContent = '';
-      //   console.log('Reset.')
-      // })
-
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-  // qrScanner = new Html5QrcodeScanner(
-  //   "reader", { fps: 10, qrbox: 300, rememberLastUsedCamera: true });
-  // qrScanner.render(scanCallback);
+  qrScanner = new QrScanner(
+    videoRef.value,
+    scanCallback,
+    { returnDetailedScanResult: true, maxScansPerSecond: 5 }
+  );
 });
 
 onUnmounted(() => {
   stopScanning();
-  // qrScanner.destroy();
+  qrScanner.destroy();
 })
 </script>
 
@@ -738,15 +660,5 @@ onUnmounted(() => {
     color: #C4EAFF;
     font-weight: bold;
   }
-}
-</style>
-
-<style>
-#html5-qrcode-anchor-scan-type-change {
-  display: none !important;
-}
-
-#html5-qrcode-button-camera-permission {
-  display: none !important;
 }
 </style>
