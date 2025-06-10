@@ -31,9 +31,9 @@
     </div>
     <div class="state" v-if="current === 'ready'">
       <div v-if="!awaitsAnswer && !isPlaying" class="readyText">
-        Scan QR codes and listen.
+        Scan a large QR code and listen.
       </div>
-      <div v-if="awaitsAnswer">Answer by scanning <br><span class="answerA">[A]</span> or <span class="answerB">[B]</span> QR codes.</div>
+      <div v-if="awaitsAnswer">Answer by scanning an<br><span class="answerA">[A]</span> or <span class="answerB">[B]</span> QR code.</div>
     </div>
   </div>
 </template>
