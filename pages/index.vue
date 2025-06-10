@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="qr-reader" id="reader"></div>
-    <video class="video" ref="videoRef" id="video" />
+    <video class="video" ref="videoRef" id="video" autoplay="false" />
     <div class="videoOverlay"></div>
     <div class="blendOverlay"></div>
     <div class="overlay">
@@ -30,13 +30,10 @@
       </div>
     </div>
     <div class="state" v-if="current === 'ready'">
-      <div class="readyText">
+      <div v-if="!awaitsAnswer && !isPlaying" class="readyText">
         Scan QR codes and listen.
       </div>
-      <div>Answer by scanning <br><span class="answerA">[A]</span> or <span class="answerB">[B]</span> QR codes.</div>
-    </div>
-    <div v-if="current === 'readyForAnswer'">
-      Answer by scanning [A] or [B] QR codes
+      <div v-if="awaitsAnswer">Answer by scanning <br><span class="answerA">[A]</span> or <span class="answerB">[B]</span> QR codes.</div>
     </div>
   </div>
 </template>
@@ -44,7 +41,7 @@
 <script setup>
 import { Howler } from 'howler';
 import { animate } from 'animejs';
-import {  BrowserQRCodeReader } from '@zxing/library';
+import { BrowserQRCodeReader } from '@zxing/library';
 
 let qrScanner;
 
@@ -116,6 +113,9 @@ const { play: playConfirmationSound, isPlaying: isConfirmationSoundPlaying } = u
   volume: 1,
   interrupt: false,
   html5: true,
+  onplay: () => {
+    awaitsAnswer.value = false
+  }
 })
 
 const resetFromSuperSituation = () => {
@@ -161,6 +161,7 @@ const { play: playCowSound } = useSound('/sounds/cow.mp3', {
   }
 })
 
+const awaitsAnswer = ref(false);
 
 const sounds = [];
 questions.forEach(question => {
@@ -171,9 +172,11 @@ questions.forEach(question => {
     html5: true,
     onplay: () => {
       isPlaying.value = true;
+      awaitsAnswer.value = false
     },
     onend: () => {
       isPlaying.value = false;
+      awaitsAnswer.value = true
       if (question.name && question.name === previousAnswerToQuestionName.value) {
         previousAnswerToQuestionName.value = "";
       }
@@ -390,41 +393,72 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
     previousAnswerToQuestionName.value = question.name;
   }
 
+  let superSituationTimeout = 3000;
   if (uniqueValuesReached.value) {
     console.log('uniqueValuesReached and answers set');
     Howler.stop();
     isSuperSituation.value = true;
     setTimeout(() => {
       if (totalXScore.value === 0 && totalYScore.value === 0) {
-        superSituation00.play();
+        setTimeout(() => {
+          superSituation00.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 1) {
-        superSituation01.play();
+        setTimeout(() => {
+          superSituation01.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 2) {
-        superSituation02.play();
+        setTimeout(() => {
+          superSituation02.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 3) {
-        superSituation03.play();
+        setTimeout(() => {
+          superSituation03.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 4) {
-        superSituation04.play();
+        setTimeout(() => {
+          superSituation04.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 0) {
-        superSituation10.play();
+        setTimeout(() => {
+          superSituation10.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 1) {
-        superSituation11.play();
+        setTimeout(() => {
+          superSituation11.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 2) {
-        superSituation12.play();
+        setTimeout(() => {
+          superSituation12.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 3) {
-        superSituation13.play();
+        setTimeout(() => {
+          superSituation13.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 2 && totalYScore.value === 0) {
-        superSituation20.play();
+        setTimeout(() => {
+          superSituation20.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 2 && totalYScore.value === 1) {
-        superSituation21.play();
+        setTimeout(() => {
+          superSituation21.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 2 && totalYScore.value === 2) {
-        superSituation22.play();
+        setTimeout(() => {
+          superSituation22.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 3 && totalYScore.value === 0) {
-        superSituation30.play();
+        setTimeout(() => {
+          superSituation30.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 3 && totalYScore.value === 1) {
-        superSituation31.play();
+        setTimeout(() => {
+          superSituation31.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 4 && totalYScore.value === 0) {
-        superSituation40.play();
+        setTimeout(() => {
+          superSituation40.play();
+        }, superSituationTimeout);
       } else resetFromSuperSituation();
     });
   };
@@ -455,8 +489,6 @@ const start = () => {
 
 const stopScanning = () => {
   isScanning.value = false;
-  // qrScanner.stop();
-  // qrScanner.clear();
 }
 
 const playConfirmation = (id) => {
@@ -482,13 +514,11 @@ const playConfirmation = (id) => {
 
 const scanCallback = (codeReader, selectedDeviceId) => {
   codeReader.decodeFromInputVideoDeviceContinuously(selectedDeviceId, 'video', (result, err) => {
+    if (result) {
+      logActivity();
+    }
     if (result && !isPlaying.value) {
-
       previousId.value = id.value;
-      // id.value = decodedText;
-      // id.value = decodedText.split('/')[1];
-      // console.log('id', id.value);
-      // http://rerere.cc/18 
 
       id.value = result.text.split('/').pop();
       console.log(id); // 
@@ -538,61 +568,41 @@ const scanCallback = (codeReader, selectedDeviceId) => {
   })
 }
 
+let inactivityTimer = null;
+let inactivityTimeInSeconds = 120
+const handleInactivity = () => {
+  console.log('handleInactivity');
+  window.location.reload();
+  resetInactivityTimer();
+};
+
+const resetInactivityTimer = () => {
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+  }
+
+  inactivityTimer = setTimeout(handleInactivity, inactivityTimeInSeconds * 1000); // 60 seconds
+};
+
+const logActivity = () => {
+  resetInactivityTimer();
+};
+
 let selectedDeviceId;
 onMounted(() => {
-  // qrScanner = new QrScanner(
-  //   videoRef.value,
-  //   scanCallback,
-  //   { returnDetailedScanResult: true, maxScansPerSecond: 5 }
-  // );
+  window.addEventListener('contextmenu', e => e.preventDefault());
+
+  resetInactivityTimer();
+
   qrScanner = new BrowserQRCodeReader()
 
   qrScanner.getVideoInputDevices()
     .then((videoInputDevices) => {
-      // const sourceSelect = document.getElementById('sourceSelect')
       selectedDeviceId = videoInputDevices[videoInputDevices.length - 1].deviceId
-      // if (videoInputDevices.length >= 1) {
-      //   videoInputDevices.forEach((element) => {
-      //     const sourceOption = document.createElement('option')
-      //     sourceOption.text = element.label
-      //     sourceOption.value = element.deviceId
-      //     sourceSelect.appendChild(sourceOption)
-      //   })
-
-      //   sourceSelect.onchange = () => {
-      //     selectedDeviceId = sourceSelect.value;
-      //   };
-
-      //   const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-      //   sourceSelectPanel.style.display = 'block'
-      // }
-
-      // document.getElementById('startButton').addEventListener('click', () => {
-
-      //   const decodingStyle = document.getElementById('decoding-style').value;
-
-      //   if (decodingStyle == "once") {
-      //     decodeOnce(codeReader, selectedDeviceId);
-      //   } else {
-      //     decodeContinuously(codeReader, selectedDeviceId);
-      //   }
-
-      //   console.log(`Started decode from camera with id ${selectedDeviceId}`)
-      // })
-
-      // document.getElementById('resetButton').addEventListener('click', () => {
-      //   codeReader.reset()
-      //   document.getElementById('result').textContent = '';
-      //   console.log('Reset.')
-      // })
-
     })
     .catch((err) => {
       console.error(err)
     })
-  // qrScanner = new Html5QrcodeScanner(
-  //   "reader", { fps: 10, qrbox: 300, rememberLastUsedCamera: true });
-  // qrScanner.render(scanCallback);
 });
 
 onUnmounted(() => {
@@ -613,6 +623,7 @@ onUnmounted(() => {
   width: 100dvw;
   height: 100dvh;
   overflow: hidden;
+  user-select: none;
 
   .overlay {
     position: fixed;

@@ -395,41 +395,72 @@ const setAnswerToQuestion = (questionId, answer, answerId) => {
     previousAnswerToQuestionName.value = question.name;
   }
 
+  let superSituationTimeout = 3000;
   if (uniqueValuesReached.value) {
     console.log('uniqueValuesReached and answers set');
     Howler.stop();
     isSuperSituation.value = true;
     setTimeout(() => {
       if (totalXScore.value === 0 && totalYScore.value === 0) {
-        superSituation00.play();
+        setTimeout(() => {
+          superSituation00.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 1) {
-        superSituation01.play();
+        setTimeout(() => {
+          superSituation01.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 2) {
-        superSituation02.play();
+        setTimeout(() => {
+          superSituation02.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 3) {
-        superSituation03.play();
+        setTimeout(() => {
+          superSituation03.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 0 && totalYScore.value === 4) {
-        superSituation04.play();
+        setTimeout(() => {
+          superSituation04.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 0) {
-        superSituation10.play();
+        setTimeout(() => {
+          superSituation10.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 1) {
-        superSituation11.play();
+        setTimeout(() => {
+          superSituation11.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 2) {
-        superSituation12.play();
+        setTimeout(() => {
+          superSituation12.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 1 && totalYScore.value === 3) {
-        superSituation13.play();
+        setTimeout(() => {
+          superSituation13.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 2 && totalYScore.value === 0) {
-        superSituation20.play();
+        setTimeout(() => {
+          superSituation20.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 2 && totalYScore.value === 1) {
-        superSituation21.play();
+        setTimeout(() => {
+          superSituation21.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 2 && totalYScore.value === 2) {
-        superSituation22.play();
+        setTimeout(() => {
+          superSituation22.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 3 && totalYScore.value === 0) {
-        superSituation30.play();
+        setTimeout(() => {
+          superSituation30.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 3 && totalYScore.value === 1) {
-        superSituation31.play();
+        setTimeout(() => {
+          superSituation31.play();
+        }, superSituationTimeout);
       } else if (totalXScore.value === 4 && totalYScore.value === 0) {
-        superSituation40.play();
+        setTimeout(() => {
+          superSituation40.play();
+        }, superSituationTimeout);
       } else resetFromSuperSituation();
     });
   };
@@ -495,6 +526,7 @@ const scanCallback = (decodedText, decodedResult) => {
 
   if (!isPlaying.value) {
     if (isAnswerA) {
+      logActivity();
       console.log('isAnswerA', isAnswerA);
       const now = Date.now();
       const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
@@ -504,6 +536,7 @@ const scanCallback = (decodedText, decodedResult) => {
     }
 
     if (isAnswerB) {
+      logActivity();
       const now = Date.now();
       const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
       if (now - lastPlayedTimestamp > 3000) {
@@ -512,6 +545,7 @@ const scanCallback = (decodedText, decodedResult) => {
     }
 
     if (isQuestion) {
+      logActivity();
       const lastPlayedTimestamp = lastPlayedTimes.get(id.value) || 0;
       const now = Date.now();
       console.log('now in isQuestion', now);
@@ -522,6 +556,29 @@ const scanCallback = (decodedText, decodedResult) => {
     }
   }
 }
+let inactivityTimer = null;
+let inactivityTimeInSeconds = 90
+const handleInactivity = () => {
+  console.log('handleInactivity');
+};
+
+const resetInactivityTimer = () => {
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+  }
+
+  inactivityTimer = setTimeout(handleInactivity, inactivityTimeInSeconds * 1000); // 60 seconds
+};
+
+const logActivity = () => {
+  resetInactivityTimer();
+};
+
+onMounted(() => {
+  window.addEventListener('contextmenu', e => e.preventDefault());
+
+  resetInactivityTimer();
+});
 
 onMounted(() => {
   // qrScanner = new QrScanner(
@@ -529,6 +586,10 @@ onMounted(() => {
   //   scanCallback,
   //   { returnDetailedScanResult: true, maxScansPerSecond: 5 }
   // );
+
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+  }
 
   var qrScanner = new Html5QrcodeScanner(
     "reader", { fps: 10, qrbox: 200, rememberLastUsedCamera: false });
